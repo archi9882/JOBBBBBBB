@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rainb
+  labels: {app: rainb}
+spec:
+  replicas: 1                          # 每個 Pod 啟動時自己跑 ETL、寫 emptyDir，沒有共用 PVC
+  selector:
+    matchLabels: {app: rainb}
+  template:
+    metadata:
+      labels: {app: rainb}
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        fsGroup: 10001
+      containers:
+        - name: api
+          image: rain-etl-spatial:0.1.0      # 固定標籤；k3d 用 `k3d image import` 匯入
+          imagePullPolicy: IfNotPresent
+          ports: [{containerPort: 8000, name: http}]
+          envFrom: [{configMapRef: {name: rainb-config}}]
+          resources:
+            requests: {cpu: 100m, memory: 256Mi}
+            limits: {cpu: "1", memory: 512Mi}
+          readinessProbe:                    # ETL 跑完、能回應才收流量
+            httpGet: {path: /healthz, port: http}
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:                     # 卡死才重啟；延遲比 readiness 長，避免啟動中被殺
+            httpGet: {path: /healthz, port: http}
+            initialDelaySeconds: 30
+            periodSeconds: 20
+            failureThreshold: 3
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: {drop: ["ALL"]}
+          volumeMounts: [{name: work, mountPath: /tmp}]
+      volumes:
+        - name: work
+          emptyDir: {sizeLimit: 100Mi}

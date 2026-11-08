@@ -1,0 +1,14 @@
+{
+  "project": "B",
+  "generated_at": "2026-11-08T14:46:54+00:00",
+  "metrics": {
+    "n_sources": 2,
+    "n_stations": 6,
+    "n_records": 141,
+    "n_rejected": 6,
+    "weight_sum_error": 2.4424906541753444e-15,
+    "projection_roundtrip_mm": 1.397e-06,
+    "idempotent": true,
+    "tests_passed": 26
+  }
+}

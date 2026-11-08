@@ -1,0 +1,11 @@
+# 版本為 2026-11-08 Claude 環境實測可用的版本
+numpy==2.5.3
+pandas==3.0.5
+scipy==1.18.1
+shapely==2.2.0
+pyproj==3.8.0
+fastapi==0.162.2
+uvicorn==0.54.0
+prometheus-client==0.26.0
+httpx==0.28.1
+pytest==9.1.1

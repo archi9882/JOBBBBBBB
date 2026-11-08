@@ -1,0 +1,23 @@
+# 每次 push：跑所有測試、列出課程出貨狀態、檢查專案 C 關卡、重產履歷生產表。
+# （Claude 未在 GitHub 上實際執行過此檔，第一次 push 後請到 Actions 頁確認）
+name: ci
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install numpy pandas scipy shapely pyproj pytest fastapi uvicorn httpx prometheus-client
+      - run: pytest
+      - run: python tools/ship_check.py --run
+      - name: 專案 C 關卡（未解鎖的層放了程式碼就失敗）
+        run: python tools/gate.py
+      - name: 履歷生產表
+        run: python tools/resume_gen.py --refresh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: resume
+          path: resume/generated/

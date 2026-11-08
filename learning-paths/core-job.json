@@ -1,0 +1,217 @@
+{
+  "id": "core-job",
+  "title": "職缺主線（全部依序）",
+  "description": "依 phase 順序完成全部課程。",
+  "lessons": [
+    {
+      "id": "00/01",
+      "path": "phases/00-setup-and-tooling/01-wsl-conda-git",
+      "title": "WSL2、conda 與 git"
+    },
+    {
+      "id": "00/02",
+      "path": "phases/00-setup-and-tooling/02-repo-and-pytest",
+      "title": "repo 結構與第一個測試"
+    },
+    {
+      "id": "00/03",
+      "path": "phases/00-setup-and-tooling/03-docker-first-image",
+      "title": "第一個 Docker 映像"
+    },
+    {
+      "id": "00/04",
+      "path": "phases/00-setup-and-tooling/04-falsification-log",
+      "title": "AI 否證紀錄的方法"
+    },
+    {
+      "id": "01/01",
+      "path": "phases/01-conservation-and-verification/01-control-volume-continuity",
+      "title": "控制體積與連續方程"
+    },
+    {
+      "id": "01/02",
+      "path": "phases/01-conservation-and-verification/02-convergence-order",
+      "title": "網格收斂與觀測收斂階"
+    },
+    {
+      "id": "01/03",
+      "path": "phases/01-conservation-and-verification/03-manufactured-solutions",
+      "title": "製造解（MMS）"
+    },
+    {
+      "id": "01/04",
+      "path": "phases/01-conservation-and-verification/04-lake-at-rest",
+      "title": "靜水測試"
+    },
+    {
+      "id": "02/01",
+      "path": "phases/02-shallow-water-fv/01-saint-venant-and-cfl",
+      "title": "Saint-Venant 方程與 CFL"
+    },
+    {
+      "id": "02/02",
+      "path": "phases/02-shallow-water-fv/02-lax-friedrichs",
+      "title": "Lax–Friedrichs 通量"
+    },
+    {
+      "id": "02/03",
+      "path": "phases/02-shallow-water-fv/03-hll-flux",
+      "title": "HLL 近似 Riemann 解"
+    },
+    {
+      "id": "02/04",
+      "path": "phases/02-shallow-water-fv/04-dam-break-benchmark",
+      "title": "潰壩解析解基準"
+    },
+    {
+      "id": "02/05",
+      "path": "phases/02-shallow-water-fv/05-wet-dry-and-bed-slope",
+      "title": "乾濕邊界與底床源項"
+    },
+    {
+      "id": "02/06",
+      "path": "phases/02-shallow-water-fv/06-sensitivity",
+      "title": "敏感度分析"
+    },
+    {
+      "id": "03/01",
+      "path": "phases/03-method-selection/01-decision-table",
+      "title": "方法選擇決策表"
+    },
+    {
+      "id": "03/02",
+      "path": "phases/03-method-selection/02-surrogate-from-scratch",
+      "title": "手刻代理模型"
+    },
+    {
+      "id": "03/03",
+      "path": "phases/03-method-selection/03-when-surrogate-fails",
+      "title": "代理模型何時失效"
+    },
+    {
+      "id": "04/01",
+      "path": "phases/04-spatial/01-projections-twd97",
+      "title": "投影與 TWD97"
+    },
+    {
+      "id": "04/02",
+      "path": "phases/04-spatial/02-polygon-area-validity",
+      "title": "多邊形面積與有效性"
+    },
+    {
+      "id": "04/03",
+      "path": "phases/04-spatial/03-thiessen-weights",
+      "title": "徐昇式多邊形權重"
+    },
+    {
+      "id": "04/04",
+      "path": "phases/04-spatial/04-delaunay-mesh-quality",
+      "title": "Delaunay 網格品質"
+    },
+    {
+      "id": "05/01",
+      "path": "phases/05-etl/01-schema-and-units",
+      "title": "Schema 與單位"
+    },
+    {
+      "id": "05/02",
+      "path": "phases/05-etl/02-timezone-and-resample",
+      "title": "時區與重新取樣"
+    },
+    {
+      "id": "05/03",
+      "path": "phases/05-etl/03-sentinels-and-quality",
+      "title": "缺值哨兵與品質報表"
+    },
+    {
+      "id": "05/04",
+      "path": "phases/05-etl/04-idempotent-pipeline",
+      "title": "可重跑的流程"
+    },
+    {
+      "id": "05/05",
+      "path": "phases/05-etl/05-autocorrelation-pitfall",
+      "title": "時間序列自相關"
+    },
+    {
+      "id": "06/01",
+      "path": "phases/06-service/01-http-from-stdlib",
+      "title": "用標準函式庫寫 HTTP 服務"
+    },
+    {
+      "id": "06/02",
+      "path": "phases/06-service/02-job-queue-sqlite",
+      "title": "用 SQLite 手寫工作佇列"
+    },
+    {
+      "id": "06/03",
+      "path": "phases/06-service/03-fastapi-runs",
+      "title": "FastAPI 非同步工作 API"
+    },
+    {
+      "id": "06/04",
+      "path": "phases/06-service/04-error-contract",
+      "title": "錯誤格式與版本"
+    },
+    {
+      "id": "07/01",
+      "path": "phases/07-self-hosted-platform/01-compose-api-worker",
+      "title": "Docker Compose：API＋worker"
+    },
+    {
+      "id": "07/02",
+      "path": "phases/07-self-hosted-platform/02-k3d-manifests",
+      "title": "k3d 與 Kubernetes manifest"
+    },
+    {
+      "id": "07/03",
+      "path": "phases/07-self-hosted-platform/03-manifest-review-drill",
+      "title": "AI manifest 審查演練"
+    },
+    {
+      "id": "07/04",
+      "path": "phases/07-self-hosted-platform/04-observability",
+      "title": "監控：Prometheus＋Grafana"
+    },
+    {
+      "id": "07/05",
+      "path": "phases/07-self-hosted-platform/05-object-storage-adr",
+      "title": "物件儲存選型 ADR"
+    },
+    {
+      "id": "07/06",
+      "path": "phases/07-self-hosted-platform/06-capacity-10x",
+      "title": "10 倍容量估算"
+    },
+    {
+      "id": "07/07",
+      "path": "phases/07-self-hosted-platform/07-failure-drills",
+      "title": "故障演練"
+    },
+    {
+      "id": "08/01",
+      "path": "phases/08-capstone/01-end-to-end",
+      "title": "端到端執行"
+    },
+    {
+      "id": "08/02",
+      "path": "phases/08-capstone/02-adr-collection",
+      "title": "架構決策紀錄集"
+    },
+    {
+      "id": "08/03",
+      "path": "phases/08-capstone/03-falsification-casebook",
+      "title": "否證案例集"
+    },
+    {
+      "id": "09/01",
+      "path": "phases/09-portfolio/01-readme-and-demo",
+      "title": "README 與展示"
+    },
+    {
+      "id": "09/02",
+      "path": "phases/09-portfolio/02-talk",
+      "title": "10 分鐘簡報"
+    }
+  ]
+}

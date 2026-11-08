@@ -1,0 +1,87 @@
+# grill-me 的拆解目標。id 格式「專案/元件」。
+# files：拷問時要讀的原始碼；lessons：對應課程；seeds：起始問題（grill-me 會再往下追問，不給答案）。
+# 分數 0–3 記在 grill/scores.json：0 答不出、1 能描述它做什麼、2 能解釋為什麼並預測改動後果、3 能不看程式重寫並說出失效情境。
+
+[[target]]
+id = "A/conservation-form"
+files = ["projects/A-flood-service/src/floodsvc/solver.py"]
+lessons = ["01/01", "02/01"]
+seeds = ["為什麼更新 hu 而不是 u？", "若改成更新 u，激波速度會怎樣？"]
+
+[[target]]
+id = "A/hll-flux"
+files = ["projects/A-flood-service/src/floodsvc/solver.py"]
+lessons = ["02/02", "02/03"]
+seeds = ["S_L、S_R 為什麼取左右特徵速度的極值？", "SL >= 0 時為什麼直接用 F_L？"]
+
+[[target]]
+id = "A/cfl-and-boundaries"
+files = ["projects/A-flood-service/src/floodsvc/solver.py"]
+lessons = ["02/01"]
+seeds = ["smax 為什麼是 |u|+√(gh) 的最大值？", "透射邊界的虛擬格代表什麼物理條件？"]
+
+[[target]]
+id = "A/wet-dry"
+files = ["projects/A-flood-service/src/floodsvc/solver.py"]
+lessons = ["02/05", "03/03"]
+seeds = ["H_DRY 設太大、太小各會發生什麼？", "前緣落後 Ritter 解，對淹水範圍預報代表什麼？"]
+
+[[target]]
+id = "A/analytic-and-convergence"
+files = ["projects/A-flood-service/src/floodsvc/analytic.py", "projects/A-flood-service/tests/test_a_solver.py"]
+lessons = ["01/02", "02/04"]
+seeds = ["Stoker 中間狀態的兩個方程各來自哪個守恆律？", "收斂階為什麼不是 1？"]
+
+[[target]]
+id = "A/job-queue"
+files = ["projects/A-flood-service/src/floodsvc/jobs.py", "projects/A-flood-service/src/floodsvc/worker.py"]
+lessons = ["06/02", "07/07"]
+seeds = ["拿掉 BEGIN IMMEDIATE 會發生什麼？怎麼寫測試證明？", "worker 被 kill -9 時工作狀態如何回復？會不會跑兩次？"]
+
+[[target]]
+id = "A/api-contract"
+files = ["projects/A-flood-service/src/floodsvc/api.py"]
+lessons = ["06/03", "06/04"]
+seeds = ["為什麼不在 POST 裡直接跑完模擬？", "同一個 Idempotency-Key 搭配不同參數為什麼回 409？", "為什麼每個請求要開新的 sqlite3 連線？"]
+
+[[target]]
+id = "A/deployment"
+files = ["projects/A-flood-service/compose.yaml", "projects/A-flood-service/Dockerfile"]
+lessons = ["00/03", "07/01", "07/06"]
+seeds = ["共用 SQLite 資料卷在 worker 擴到 10 個時哪裡先壞？", "cells ≤ 20000 這個上限怎麼從記憶體與時間估出來？"]
+
+[[target]]
+id = "B/etl-time-units"
+files = ["projects/B-rain-etl-spatial/src/rainb/etl.py"]
+lessons = ["05/01", "05/02", "05/03"]
+seeds = ["為什麼拒收沒有時區的時間，而不是假設它是台灣時間？", "-999 為什麼要在換算單位之前檢查？", "把 closed=\"right\" 拿掉，哪一個測試會失敗、為什麼？"]
+
+[[target]]
+id = "B/dedup-merge-idempotent"
+files = ["projects/B-rain-etl-spatial/src/rainb/etl.py"]
+lessons = ["05/01", "05/04"]
+seeds = ["兩來源同一小時數值不同時，現在的規則會怎樣？應該怎樣？", "哪些東西會讓兩次輸出的 sha256 不同？"]
+
+[[target]]
+id = "B/thiessen-and-projection"
+files = ["projects/B-rain-etl-spatial/src/rainb/spatial.py"]
+lessons = ["04/01", "04/02", "04/03"]
+seeds = ["拿掉 always_xy=True 會發生什麼事，哪個測試會抓到？", "為什麼要加 4 個虛擬遠點？far 太小時程式怎麼發現？", "權重和＝1 這個測試抓不到哪些錯？"]
+
+[[target]]
+id = "B/areal-rainfall-missing"
+files = ["projects/B-rain-etl-spatial/src/rainb/spatial.py"]
+lessons = ["04/03", "05/03"]
+seeds = ["重新正規化權重隱含什麼假設？什麼雨型下會偏差很大？", "MIN_COVERAGE = 0.5 怎麼定才有依據？"]
+
+[[target]]
+id = "B/api"
+files = ["projects/B-rain-etl-spatial/src/rainb/api.py"]
+lessons = ["06/03", "06/04"]
+seeds = ["為什麼缺參數是 422、沒有時區是 400？", "查詢區間為什麼是 (start, end]？"]
+
+[[target]]
+id = "B/k8s-and-metrics"
+files = ["projects/B-rain-etl-spatial/Dockerfile", "projects/B-rain-etl-spatial/k8s/deployment.yaml", "projects/B-rain-etl-spatial/src/rainb/api.py"]
+lessons = ["07/02", "07/03", "07/04"]
+seeds = ["liveness 的延遲為什麼比 readiness 長？", "422 沒被計數，要怎麼補？", "replicas 改成 3 時，現在的設計哪裡會出錯？"]

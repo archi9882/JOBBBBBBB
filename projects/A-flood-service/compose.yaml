@@ -1,0 +1,22 @@
+# docker compose up --build；之後 bash scripts/e2e.sh 送出一個模擬並等結果
+services:
+  api:
+    build: .
+    image: floodsvc:1.0
+    ports: ["8000:8000"]
+    volumes: ["simdata:/data"]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/healthz')"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+  worker:
+    image: floodsvc:1.0
+    command: ["python", "-m", "floodsvc.worker"]
+    volumes: ["simdata:/data"]
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: on-failure
+volumes:
+  simdata:

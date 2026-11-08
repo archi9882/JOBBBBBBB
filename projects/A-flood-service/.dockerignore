@@ -1,0 +1,4 @@
+__pycache__
+*.db
+metrics.json
+.pytest_cache

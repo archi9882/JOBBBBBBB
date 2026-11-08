@@ -1,0 +1,112 @@
+{
+  "id": "must-first",
+  "title": "時間不夠：必備項優先",
+  "description": "M2 > M1 驗證 > ETL > 空間 > API。每項只做到能審查 AI 產出的程度。",
+  "lessons": [
+    {
+      "id": "00/01",
+      "path": "phases/00-setup-and-tooling/01-wsl-conda-git",
+      "title": "WSL2、conda 與 git"
+    },
+    {
+      "id": "00/02",
+      "path": "phases/00-setup-and-tooling/02-repo-and-pytest",
+      "title": "repo 結構與第一個測試"
+    },
+    {
+      "id": "00/03",
+      "path": "phases/00-setup-and-tooling/03-docker-first-image",
+      "title": "第一個 Docker 映像"
+    },
+    {
+      "id": "00/04",
+      "path": "phases/00-setup-and-tooling/04-falsification-log",
+      "title": "AI 否證紀錄的方法"
+    },
+    {
+      "id": "01/01",
+      "path": "phases/01-conservation-and-verification/01-control-volume-continuity",
+      "title": "控制體積與連續方程"
+    },
+    {
+      "id": "01/02",
+      "path": "phases/01-conservation-and-verification/02-convergence-order",
+      "title": "網格收斂與觀測收斂階"
+    },
+    {
+      "id": "01/04",
+      "path": "phases/01-conservation-and-verification/04-lake-at-rest",
+      "title": "靜水測試"
+    },
+    {
+      "id": "07/01",
+      "path": "phases/07-self-hosted-platform/01-compose-api-worker",
+      "title": "Docker Compose：API＋worker"
+    },
+    {
+      "id": "07/02",
+      "path": "phases/07-self-hosted-platform/02-k3d-manifests",
+      "title": "k3d 與 Kubernetes manifest"
+    },
+    {
+      "id": "07/03",
+      "path": "phases/07-self-hosted-platform/03-manifest-review-drill",
+      "title": "AI manifest 審查演練"
+    },
+    {
+      "id": "07/05",
+      "path": "phases/07-self-hosted-platform/05-object-storage-adr",
+      "title": "物件儲存選型 ADR"
+    },
+    {
+      "id": "07/06",
+      "path": "phases/07-self-hosted-platform/06-capacity-10x",
+      "title": "10 倍容量估算"
+    },
+    {
+      "id": "02/01",
+      "path": "phases/02-shallow-water-fv/01-saint-venant-and-cfl",
+      "title": "Saint-Venant 方程與 CFL"
+    },
+    {
+      "id": "02/06",
+      "path": "phases/02-shallow-water-fv/06-sensitivity",
+      "title": "敏感度分析"
+    },
+    {
+      "id": "03/01",
+      "path": "phases/03-method-selection/01-decision-table",
+      "title": "方法選擇決策表"
+    },
+    {
+      "id": "05/02",
+      "path": "phases/05-etl/02-timezone-and-resample",
+      "title": "時區與重新取樣"
+    },
+    {
+      "id": "05/03",
+      "path": "phases/05-etl/03-sentinels-and-quality",
+      "title": "缺值哨兵與品質報表"
+    },
+    {
+      "id": "04/01",
+      "path": "phases/04-spatial/01-projections-twd97",
+      "title": "投影與 TWD97"
+    },
+    {
+      "id": "04/02",
+      "path": "phases/04-spatial/02-polygon-area-validity",
+      "title": "多邊形面積與有效性"
+    },
+    {
+      "id": "06/03",
+      "path": "phases/06-service/03-fastapi-runs",
+      "title": "FastAPI 非同步工作 API"
+    },
+    {
+      "id": "08/03",
+      "path": "phases/08-capstone/03-falsification-casebook",
+      "title": "否證案例集"
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: rainb
+  annotations:
+    prometheus.io/scrape: "true"       # 依你的 Prometheus 設定方式調整（annotation 或 ServiceMonitor）
+    prometheus.io/path: /metrics
+    prometheus.io/port: "8000"
+spec:
+  selector: {app: rainb}
+  ports: [{name: http, port: 80, targetPort: http}]

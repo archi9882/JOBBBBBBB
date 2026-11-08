@@ -1,0 +1,72 @@
+{
+  "id": "physics-only",
+  "title": "物理主線（與淹水課程第三冊重疊）",
+  "description": "只走 M1：可與第三冊第 1–6 週同時進行。",
+  "lessons": [
+    {
+      "id": "01/01",
+      "path": "phases/01-conservation-and-verification/01-control-volume-continuity",
+      "title": "控制體積與連續方程"
+    },
+    {
+      "id": "01/02",
+      "path": "phases/01-conservation-and-verification/02-convergence-order",
+      "title": "網格收斂與觀測收斂階"
+    },
+    {
+      "id": "01/03",
+      "path": "phases/01-conservation-and-verification/03-manufactured-solutions",
+      "title": "製造解（MMS）"
+    },
+    {
+      "id": "01/04",
+      "path": "phases/01-conservation-and-verification/04-lake-at-rest",
+      "title": "靜水測試"
+    },
+    {
+      "id": "02/01",
+      "path": "phases/02-shallow-water-fv/01-saint-venant-and-cfl",
+      "title": "Saint-Venant 方程與 CFL"
+    },
+    {
+      "id": "02/02",
+      "path": "phases/02-shallow-water-fv/02-lax-friedrichs",
+      "title": "Lax–Friedrichs 通量"
+    },
+    {
+      "id": "02/03",
+      "path": "phases/02-shallow-water-fv/03-hll-flux",
+      "title": "HLL 近似 Riemann 解"
+    },
+    {
+      "id": "02/04",
+      "path": "phases/02-shallow-water-fv/04-dam-break-benchmark",
+      "title": "潰壩解析解基準"
+    },
+    {
+      "id": "02/05",
+      "path": "phases/02-shallow-water-fv/05-wet-dry-and-bed-slope",
+      "title": "乾濕邊界與底床源項"
+    },
+    {
+      "id": "02/06",
+      "path": "phases/02-shallow-water-fv/06-sensitivity",
+      "title": "敏感度分析"
+    },
+    {
+      "id": "03/01",
+      "path": "phases/03-method-selection/01-decision-table",
+      "title": "方法選擇決策表"
+    },
+    {
+      "id": "03/02",
+      "path": "phases/03-method-selection/02-surrogate-from-scratch",
+      "title": "手刻代理模型"
+    },
+    {
+      "id": "03/03",
+      "path": "phases/03-method-selection/03-when-surrogate-fails",
+      "title": "代理模型何時失效"
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+# 版本為 Claude 環境 2026-11-08 實測可用的版本；在 WSL2 上建立後請跑 pytest 確認
+name: jobprep
+channels:
+  - conda-forge
+dependencies:
+  - python=3.12
+  - numpy=2.5
+  - pandas=3.0
+  - scipy=1.18
+  - shapely=2.2
+  - pyproj=3.8
+  - pytest=9.1
+  - matplotlib
+  - pip
+  - pip:
+      - fastapi==0.162.2
+      - uvicorn==0.54.0
+      - httpx==0.28.1
+      - prometheus-client

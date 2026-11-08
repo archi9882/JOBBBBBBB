@@ -1,0 +1,14 @@
+{
+  "project": "A",
+  "generated_at": "2026-11-08T22:46:52+08:00",
+  "metrics": {
+    "stoker_l1_error_m2": 33.16,
+    "observed_order": 0.927,
+    "mass_rel_error": 0.0,
+    "min_depth_dry_bed": 0.0,
+    "tests_passed": 17,
+    "tests_failed": false,
+    "e2e_ok": false,
+    "e2e_mode": "none"
+  }
+}

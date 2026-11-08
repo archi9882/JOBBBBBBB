@@ -1,0 +1,117 @@
+# 履歷生產表的規則：每一條履歷敘述（claim）要滿足哪些證據才解鎖。
+# 由 python tools/resume_gen.py 讀取，產生 resume/generated/ 下的表格與敘述。
+#
+# requires 可用的條件：
+#   grill       grill 目標分數 ≥ 2（grill/scores.json）
+#   lessons     課程已出貨（推導＋程式＋測試＋否證）
+#   layers      專案 C 的層已通過（tools/gate.py）
+#   metrics     專案 metrics.json 的條件，格式 "A.key op 值"，op 為 == != > >= < <=
+#   falsification_mine  docs/ai-falsification-log.md 中作者為「我」的筆數下限
+#
+# 敘述中的 {A.key} 或 {A.key:格式} 會換成 metrics.json 的數值；{falsification_mine} 為筆數。
+#
+# 誠實原則：A、B 是 Claude 寫的速成版，所以敘述只有在你通過拷問（能解釋並預測改動後果）後才解鎖，
+# 用詞是「建置／驗證」，不寫「獨立設計」。專案 C 由你從零撰寫，才用「從零實作」。
+
+[[claim]]
+id = "A1-solver"
+capability = "M1 數值模擬與物理判斷"
+requires.grill = ["A/conservation-form", "A/hll-flux", "A/analytic-and-convergence", "A/wet-dry"]
+requires.metrics = ["A.tests_failed == false"]
+zh = "建置一維淺水方程有限體積（HLL 通量）潰壩模擬器，以 Stoker 解析解驗證：N=400 時 L1 誤差 {A.stoker_l1_error_m2} m²、觀測收斂階 {A.observed_order}，總水量守恆至機器精度；並量化乾床前緣落後解析解的程度及其對淹水範圍預報的影響。"
+en = "Built and verified a 1D finite-volume (HLL) shallow-water dam-break solver against Stoker's analytical solution (L1 error {A.stoker_l1_error_m2} m² at N=400, observed order {A.observed_order}, mass conserved to machine precision), and quantified wet/dry front lag and its impact on inundation extent."
+interview = "為什麼收斂階不是 1？前緣落後怎麼修？什麼情況你不會用這個求解器？"
+
+[[claim]]
+id = "A2-async-api"
+capability = "REST API"
+requires.grill = ["A/job-queue", "A/api-contract"]
+requires.metrics = ["A.tests_failed == false", "A.e2e_ok == true"]
+zh = "設計非同步模擬服務（FastAPI＋SQLite 工作佇列＋worker）：202／Location 工作模式、RFC 9457 錯誤格式、冪等鍵、輸入上限與 worker 逾時重排，{A.tests_passed} 個自動化測試涵蓋邊界情境。"
+en = "Designed an asynchronous simulation service (FastAPI + SQLite job queue + worker) with 202/Location job semantics, RFC 9457 problem responses, idempotency keys, input limits and stale-worker recovery; {A.tests_passed} automated tests cover edge cases."
+interview = "worker 被 kill -9 時會怎樣？為什麼不在 POST 裡直接算？SQLite 佇列什麼時候該換掉？"
+
+[[claim]]
+id = "A3-compose"
+capability = "M2 自架基礎設施"
+requires.grill = ["A/deployment"]
+requires.metrics = ["A.e2e_mode == compose"]
+zh = "以 Docker Compose 部署 API 與 worker（非 root 容器、健康檢查、共用資料卷），並分析單機 SQLite 佇列在 10 倍負載下的瓶頸與替代方案。"
+en = "Deployed the API and worker with Docker Compose (non-root containers, health checks, shared volume) and analysed the single-node SQLite queue's bottlenecks under 10x load."
+interview = "worker 擴到 10 個時哪裡先壞？你會換成什麼，代價是什麼？"
+
+[[claim]]
+id = "B1-etl"
+capability = "ETL 與數值計算"
+requires.grill = ["B/etl-time-units", "B/dedup-merge-idempotent"]
+requires.metrics = ["B.idempotent == true", "B.tests_passed >= 20"]
+zh = "建立多來源雨量 ETL（{B.n_sources} 種來源、{B.n_stations} 站）：統一時區與時雨量區間標記、缺值哨兵與物理範圍檢查、去重與合併規則，拒收紀錄可追溯，輸出可逐位元重現。"
+en = "Built a multi-source rainfall ETL ({B.n_sources} sources, {B.n_stations} gauges) that normalises time zones and interval labelling, screens sentinels and physical ranges, logs rejected rows, and produces bit-for-bit reproducible output."
+interview = "兩個來源同一小時數值不同怎麼辦？怎麼發現來源其實是開始標記？"
+
+[[claim]]
+id = "B2-spatial"
+capability = "空間資訊"
+requires.grill = ["B/thiessen-and-projection", "B/areal-rainfall-missing"]
+requires.metrics = ["B.tests_passed >= 20"]
+zh = "以 TWD97 投影與徐昇式多邊形（Voronoi 裁切至流域邊界）計算面積雨量，處理外圍無界區域與缺測站權重重新正規化；投影來回誤差 {B.projection_roundtrip_mm:.1e} mm。"
+en = "Computed basin-average rainfall with TWD97 projection and Thiessen polygons (Voronoi clipped to the basin), handling unbounded cells and re-normalising weights for missing gauges; projection round-trip error {B.projection_roundtrip_mm:.1e} mm."
+interview = "權重和＝1 抓不到哪些錯？重新正規化在什麼雨型下會偏差很大？"
+
+[[claim]]
+id = "B3-k8s-metrics"
+capability = "M2 自架基礎設施"
+requires.grill = ["B/k8s-and-metrics", "B/api"]
+requires.lessons = ["07/02"]
+zh = "撰寫 Kubernetes 部署設定（資源限制、就緒與存活探針、非 root、固定映像版本）並以 Prometheus 指標監控服務，在 k3d 叢集上部署驗證。"
+en = "Wrote Kubernetes manifests (resource limits, readiness/liveness probes, non-root, pinned images), exposed Prometheus metrics, and validated the deployment on a k3d cluster."
+interview = "replicas 改成 3 時哪裡會出錯？你會對哪個指標設告警？"
+
+[[claim]]
+id = "C1-ade"
+capability = "M1 數值模擬與物理判斷"
+requires.layers = ["L1-ade-solver"]
+zh = "從零實作一維對流-延散有限差分求解器，以 Ogata–Banks 解析解驗證收斂階與守恆，並分析網格 Péclet 數造成的數值擴散。"
+en = "Implemented from scratch a 1D advection-dispersion finite-difference solver, verified convergence order and mass balance against the Ogata–Banks solution, and analysed grid-Péclet-driven numerical dispersion."
+interview = "數值擴散和物理延散怎麼分辨？"
+
+[[claim]]
+id = "C2-inverse"
+capability = "M1 數值模擬與物理判斷"
+requires.layers = ["L2-inverse-dispersion"]
+zh = "從監測井濃度資料反求延散係數，分析觀測窗長與雜訊對參數可辨識性的影響。"
+en = "Estimated dispersion coefficients from monitoring-well data and analysed how observation window and noise affect parameter identifiability."
+interview = "什麼時候反求出的 D 不可信？"
+
+[[claim]]
+id = "C3-to-C5-service"
+capability = "M2 自架基礎設施"
+requires.layers = ["L3-well-etl-spatial", "L4-service", "L5-platform"]
+zh = "從資料 ETL、模擬 API 到 k3d 自架平台與監控，從零完成一套地下水污染傳輸模擬服務，並進行故障演練。"
+en = "Built end to end, from scratch, a groundwater contaminant-transport simulation service: data ETL, simulation API, self-hosted k3d platform with monitoring, and failure drills."
+interview = "哪一層最脆弱？刪掉一個 Pod 時發生了什麼？"
+
+[[claim]]
+id = "C6-decisions"
+capability = "M2 自架基礎設施"
+requires.layers = ["L6-decisions"]
+zh = "撰寫架構決策紀錄（物件儲存選型、self-host 或外包、是否採用 FaaS）與 10 倍容量估算，每項決策列出可推翻條件。"
+en = "Authored architecture decision records (object storage, self-host vs managed, FaaS adoption) and a 10x capacity model, each with explicit reversal conditions."
+interview = "哪個決策你最可能推翻？"
+
+[[claim]]
+id = "M3-falsification"
+capability = "M3 生成式 AI 協作與否證"
+requires.lessons = ["00/04", "08/03"]
+requires.falsification_mine = 15
+zh = "建立 AI 產出否證流程（可檢驗預測 → 獨立驗證 → 紀錄），累積 {falsification_mine} 筆實例，涵蓋數值格式、套件 API 預設值、部署設定與文獻引用錯誤。"
+en = "Established a falsification workflow for AI-generated work (testable prediction → independent check → log) with {falsification_mine} documented cases spanning numerical schemes, library defaults, deployment configs and citations."
+interview = "舉一個 AI 看起來對但其實錯的例子，你怎麼發現的？"
+
+[[claim]]
+id = "M1-verification-suite"
+capability = "M1 數值模擬與物理判斷"
+requires.lessons = ["01/01", "01/02", "01/03", "01/04"]
+zh = "建立數值驗證測試套件：守恆、觀測收斂階、製造解（MMS）、靜水平衡，並以持續整合自動執行。"
+en = "Built a numerical verification test suite (conservation, observed order of accuracy, method of manufactured solutions, lake-at-rest) run automatically in CI."
+interview = "只有一個網格時你怎麼判斷結果可信？"
