@@ -12,10 +12,10 @@ Claude Code：開新工作階段時先讀這份，從第一個未勾選的步驟
 - [x] **04 建立 conda 環境**
   - `conda env create -f environment.yml && conda activate jobprep`
   - 完成條件：`python -c "import fastapi, shapely, pyproj, prometheus_client"` 不報錯。
-- [ ] **05 跑全部測試**
+- [x] **05 跑全部測試**
   - `pytest`
   - 完成條件：62 passed。失敗時把錯誤記進 `docs/ai-falsification-log.md`（作者：我），這是你的第一筆否證紀錄。
-- [ ] **06 跑三個檢查工具**
+- [x] **06 跑三個檢查工具**
   - `python tools/ship_check.py --run`（預期 4/42 出貨）
   - `python tools/gate.py`（預期專案 C 六層全鎖定，結束碼 0）
   - `python tools/resume_gen.py --refresh`（預期 0/12 解鎖），打開 `resume/generated/resume_table.md` 看缺什麼。
