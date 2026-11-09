@@ -1,6 +1,6 @@
 {
   "project": "A",
-  "generated_at": "2026-11-08T22:46:52+08:00",
+  "generated_at": "2026-11-09T22:31:57+08:00",
   "metrics": {
     "stoker_l1_error_m2": 33.16,
     "observed_order": 0.927,
@@ -8,7 +8,7 @@
     "min_depth_dry_bed": 0.0,
     "tests_passed": 17,
     "tests_failed": false,
-    "e2e_ok": false,
-    "e2e_mode": "none"
+    "e2e_ok": true,
+    "e2e_mode": "compose"
   }
 }

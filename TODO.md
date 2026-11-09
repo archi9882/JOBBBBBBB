@@ -20,7 +20,7 @@ Claude Code：開新工作階段時先讀這份，從第一個未勾選的步驟
   - `python tools/gate.py`（預期專案 C 六層全鎖定，結束碼 0）
   - `python tools/resume_gen.py --refresh`（預期 0/12 解鎖），打開 `resume/generated/resume_table.md` 看缺什麼。
   - 完成條件：三個指令都跑完且結果與預期一致。
-- [ ] **07 用 Docker Compose 跑專案 A**
+- [x] **07 用 Docker Compose 跑專案 A**
   - `cd projects/A-flood-service && docker compose up --build -d && bash scripts/e2e.sh && python metrics.py`
   - commit 並 push `e2e.json` 與 `metrics.json`。
   - 完成條件：`e2e.json` 中 `"mode": "compose"`、`"ok": true`。這是 Claude 雲端環境無法實測的部分。
