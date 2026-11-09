@@ -9,7 +9,7 @@ Claude Code：開新工作階段時先讀這份，從第一個未勾選的步驟
 - [x] **03 clone repo 並設定推送權限**
   - `git clone https://github.com/archi9882/JOBBBBBBB.git`；設定 SSH key 或 Personal Access Token。
   - 完成條件：`git push` 成功。
-- [ ] **04 建立 conda 環境**
+- [x] **04 建立 conda 環境**
   - `conda env create -f environment.yml && conda activate jobprep`
   - 完成條件：`python -c "import fastapi, shapely, pyproj, prometheus_client"` 不報錯。
 - [ ] **05 跑全部測試**
