@@ -4,7 +4,7 @@ Claude Code：開新工作階段時先讀這份，從第一個未勾選的步驟
 
 - [x] **01 儲存 grill-me 技能**
   - claude.ai 已儲存（2026-11-08）。Claude Code 版本在 `.claude/skills/grill-me/`，隨 repo 同步。
-- [ ] **02 WSL2 備齊工具**：git、Miniconda、Docker Desktop（開啟 WSL2 integration）
+- [x] **02 WSL2 備齊工具**：git、Miniconda、Docker Desktop（開啟 WSL2 integration）
   - 完成條件：`git --version`、`conda --version`、`docker run hello-world` 都成功。
 - [ ] **03 clone repo 並設定推送權限**
   - `git clone https://github.com/archi9882/JOBBBBBBB.git`；設定 SSH key 或 Personal Access Token。
