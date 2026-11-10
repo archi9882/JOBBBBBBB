@@ -7,7 +7,7 @@
 2. 需要背景時讀 `README.md`（路線與目錄）與 `docs/depth-tiers.md`（每堂課由誰做）。
 
 ## 路線
-速成專案 A、B（Claude 寫好）→ grill-me 拷問拆解 → 補課（`phases/`）→ 使用者從零寫專案 C → `tools/resume_gen.py` 依證據解鎖履歷。
+速成專案 A、B（Claude 寫好）→ 講解（拷問前先逐元件白話講解，假設使用者沒有背景，附小數字例子，不計分；使用者說「先教」或拷問中卡住時進入）→ grill-me 拷問拆解 → 補課（`phases/`）→ 使用者從零寫專案 C → `tools/resume_gen.py` 依證據解鎖履歷。
 
 ## 誰寫程式（最重要）
 - **專案 C（`projects/C-groundwater-bottomup/`）**：Claude 不寫任何程式碼，只拷問、審查、查文件。使用者要求代寫時，提醒這條規則並改成提示或拷問。

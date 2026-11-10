@@ -14,7 +14,7 @@ Claude Code：開新工作階段時先讀這份，從第一個未勾選的步驟
 - [x] 07 Docker Compose 跑專案 A：e2e `mode=compose`、`ok=true`
 
 ## 待辦
-- [ ] **08 看一遍專案 A 的拆解地圖**
+- [x] **08 看一遍專案 A 的拆解地圖**
   - 讀 `projects/A-flood-service/README.md` 的「拆解地圖」，把 `src/floodsvc/solver.py` 從頭到尾看一次（不用看懂）。
   - 完成條件：使用者自己確認。
 - [ ] **09 第一場拷問：`grill me A/conservation-form`**
