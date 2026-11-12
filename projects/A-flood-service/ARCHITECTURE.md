@@ -86,3 +86,65 @@ e2e.sh ──> e2e.json ──────────────────�
 - `worker.py` 依賴 `jobs.py`、`solver.py`、`analytic.py`。
 - `solver.py`、`analytic.py` 不依賴其他專案內檔案，可單獨測試。
 - `metrics.py` 直接匯入 `solver`、`analytic`。
+
+## 4. 指令流程：三層關卡
+
+以下指令都在 `projects/A-flood-service` 底下執行，環境為 WSL 的 `jobprep`。
+
+### 指令格式
+
+兩種常用指令都是同一個骨架：
+
+```
+環境變數=值   python   <怎麼啟動>   <參數>
+```
+
+| 部分 | 跑測試 | 跑求解器 |
+|---|---|---|
+| 環境變數 | `PYTHONPATH=src` | `PYTHONPATH=src` |
+| 直譯器 | `python` | `python` |
+| 怎麼啟動 | `-m pytest`：把 pytest 當程式執行 | `-c "..."`：直接執行引號內的一段 Python |
+| 參數 | `-o addopts= -q tests` | 引號內的程式碼 |
+
+- `PYTHONPATH=src`：只對這條指令生效，讓 Python 去 `src/` 找 `floodsvc` 套件。沒有它，`import floodsvc` 會失敗。（測試另有 `tests/conftest.py` 加入 `src/`，所以對測試可能是多餘的，但沿用 CLAUDE.md 的完整寫法。）
+- `-m pytest`：pytest 自己到 `tests/` 找 `test_*.py`，執行每個 `test_` 開頭的函式，回報通過或失敗。
+- `-o addopts=`：清空 `pytest.ini` 預設的 `-q`，避免與自己加的 `-q` 疊成兩個，使結尾的「N passed」摘要行消失。
+- `-c "..."`：自己寫一小段程式當場執行。
+
+差別：跑測試是讓 pytest 去檢查程式；跑求解器是自己呼叫函式，看它回傳什麼。
+
+### 三層關卡
+
+| 關 | 指令 | 動作 | 代表 | 輸出 |
+|---|---|---|---|---|
+| 一：單元測試 | `PYTHONPATH=src python -m pytest -o addopts= -q tests` | 不啟動服務，直接呼叫函式比對答案 | 每個零件各自正確 | `17 passed` |
+| 二：指標 | `python metrics.py` | 跑驗證案例與測試，寫成 `metrics.json` | 把精度變成可留存的數字 | `metrics.json` |
+| 三：端到端 | 見下方 | 啟動 api 與 worker，送請求並等結果 | 零件組合起來能運作 | `e2e.json`（`ok: true`） |
+
+第三關有兩種做法：
+
+```bash
+# 方式一：Docker Compose
+docker compose up --build -d     # 建映像並在背景啟動 api 與 worker
+bash scripts/e2e.sh              # 送一個模擬請求，輪詢直到完成
+docker compose down              # 關掉服務
+
+# 方式二：不用 Docker
+uvicorn floodsvc.api:app --port 8000 &    # 啟動 API，放背景
+python -m floodsvc.worker &               # 啟動 worker，放背景
+MODE=local bash scripts/e2e.sh            # 送請求並等結果
+```
+
+| 關 | 啟動服務 | 驗證範圍 | 失敗代表 |
+|---|---|---|---|
+| 一 | 否 | 單個函式 | 某段邏輯寫錯 |
+| 二 | 否 | 整體精度 | 數字不夠準 |
+| 三 | 是 | 整個系統 | 零件之間接不起來，或部署設定錯 |
+
+### 直接呼叫求解器
+
+```bash
+PYTHONPATH=src python -c "from floodsvc.solver import dam_break; r = dam_break(10, 1); print(r.mass0, r.mass, r.steps)"
+```
+
+預設參數下實測輸出 `5500.0 5500.0 120`：初始水量 5500、結束水量 5500（20 秒內波未到邊界，故守恆）、共 120 步。
