@@ -22,3 +22,7 @@ Claude Code：開新工作階段時先讀這份，從第一個未勾選的步驟
   - 完成條件：該目標分數 ≥ 2（專案 C 第一層的解鎖條件之一）。之後依序：A/analytic-and-convergence、A/cfl-and-boundaries。
 - [ ] **10 選授權條款（LICENSE）**
   - 不擋其他步驟，公開作品集前完成即可。
+- [ ] **11 補專案 B 的 `ARCHITECTURE.md`**
+  - 依 `CLAUDE.md`「註記文件」規則，在 `projects/B-rain-etl-spatial/` 根目錄新增：每個檔案一行作用（含 `k8s/`、`metrics.py`、測試）、資料流文字圖、各檔對應的拷問目標（B/ 開頭）。格式參考 `projects/A-flood-service/ARCHITECTURE.md`。
+  - 內容要對照實際檔案核對，不憑記憶寫。
+  - 完成條件：檔案存在，且每個 `src/`、`tests/`、`k8s/` 下的檔案都有列到。不擋其他步驟。
