@@ -36,7 +36,7 @@ python tools/gen.py                     # 改 tools/curriculum.py 後重產課�
 - 專案 A 的測試靠 `tests/conftest.py` 加入 `src/`；單獨跑：`PYTHONPATH=src python -m pytest -o addopts= -q tests`。
 
 ## 技能
-- `grill-me`（`.claude/skills/grill-me/`）：使用者說「grill me <目標>」時使用。目標清單在 `grill/targets.toml`。
+- `grill-me`（`.claude/skills/grill-me/`）：使用者說「grill me <目標>」時使用。目標清單在 `grill/targets.toml`。進場條件：使用者必須先讀懂該目標的程式並親自跑過（說得出指令與實際結果），否則不開始拷問。
 
 ## 驗證習慣
 - 數值、API 用法、套件預設值都以實跑為準；說法被測試推翻就記到對應的 `falsification.md`。
