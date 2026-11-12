@@ -13,6 +13,14 @@ Claude Code：開新工作階段時先讀這份，從第一個未勾選的步驟
 - [x] 06 ship_check 4/42、gate 六層全鎖定（結束碼 0）、resume_gen 0/12
 - [x] 07 Docker Compose 跑專案 A：e2e `mode=compose`、`ok=true`
 
+## 明天（2026-11-14）處理
+今天（11-13）完成：講解 A/conservation-form、grill-me 加進場條件、solver.md 與 ARCHITECTURE.md（專案 A）、在 WSL 實跑 `17 passed` 與 `dam_break(10, 1)` 得 `5500.0 5500.0 120`。
+明天依序：
+1. 在 WSL `~/JOBBBBBBB` 先 `git pull`，拿到最新筆記與規則。
+2. 補完 09 的進場條件還缺的一項：自己讀完 `solver.py`（含 `src/solver.md`），並看 `tests/test_a_solver.py` 的 `test_mass_conserved_and_depth_nonnegative`。跑測試與求解器已完成。
+3. 做 09：`grill me A/conservation-form`，分數 ≥ 2 才打勾；結束後 commit `grill/scores.json` 與 `grill/log/`。
+4. 有餘力再做 11（專案 B 的 `ARCHITECTURE.md`）；10（LICENSE）不急。
+
 ## 待辦
 - [x] **08 看一遍專案 A 的拆解地圖**
   - 讀 `projects/A-flood-service/README.md` 的「拆解地圖」，把 `src/floodsvc/solver.py` 從頭到尾看一次（不用看懂）。
