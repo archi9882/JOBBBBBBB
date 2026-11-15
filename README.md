@@ -39,6 +39,8 @@ python tools/gate.py                    # 專案 C 每一層解鎖了沒、還�
 python tools/resume_gen.py --refresh    # 履歷生產表 → resume/generated/
 ```
 
+每次開工的步驟（WSL、VS Code、claude）見 [startup.md](startup.md)。
+
 ## 目錄
 
 ```
