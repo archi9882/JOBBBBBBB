@@ -1,12 +1,13 @@
 # 履歷生產表（自動產生，勿手改）
 
-已解鎖 0／12 條。重新產生：`python tools/resume_gen.py --refresh`
+已解鎖 0／13 條。重新產生：`python tools/resume_gen.py --refresh`
 
 | 敘述 | 能力 | 狀態 | 還缺什麼 | 面試會被問 |
 |---|---|---|---|---|
+| L1-tsunami-sensitivity | M1 數值模擬與物理判斷 | 鎖定 | 實驗室卡 06 未完成；實驗室卡 08 未完成；實驗室卡 09 未完成；實驗室卡 10 未完成；實驗室卡 11 未完成 | 網格要多細才夠？你怎麼知道？什麼情況你不信這個模式的結果？ |
 | A1-solver | M1 數值模擬與物理判斷 | 鎖定 | grill A/conservation-form 分數 0 < 2；grill A/hll-flux 分數 0 < 2；grill A/analytic-and-convergence 分數 0 < 2；grill A/wet-dry 分數 0 < 2 | 為什麼收斂階不是 1？前緣落後怎麼修？什麼情況你不會用這個求解器？ |
-| A2-async-api | REST API | 鎖定 | grill A/job-queue 分數 0 < 2；grill A/api-contract 分數 0 < 2；A.e2e_ok == true（目前 False） | worker 被 kill -9 時會怎樣？為什麼不在 POST 裡直接算？SQLite 佇列什麼時候該換掉？ |
-| A3-compose | M2 自架基礎設施 | 鎖定 | grill A/deployment 分數 0 < 2；A.e2e_mode == compose（目前 none） | worker 擴到 10 個時哪裡先壞？你會換成什麼，代價是什麼？ |
+| A2-async-api | REST API | 鎖定 | grill A/job-queue 分數 0 < 2；grill A/api-contract 分數 0 < 2 | worker 被 kill -9 時會怎樣？為什麼不在 POST 裡直接算？SQLite 佇列什麼時候該換掉？ |
+| A3-compose | M2 自架基礎設施 | 鎖定 | grill A/deployment 分數 0 < 2 | worker 擴到 10 個時哪裡先壞？你會換成什麼，代價是什麼？ |
 | B1-etl | ETL 與數值計算 | 鎖定 | grill B/etl-time-units 分數 0 < 2；grill B/dedup-merge-idempotent 分數 0 < 2 | 兩個來源同一小時數值不同怎麼辦？怎麼發現來源其實是開始標記？ |
 | B2-spatial | 空間資訊 | 鎖定 | grill B/thiessen-and-projection 分數 0 < 2；grill B/areal-rainfall-missing 分數 0 < 2 | 權重和＝1 抓不到哪些錯？重新正規化在什麼雨型下會偏差很大？ |
 | B3-k8s-metrics | M2 自架基礎設施 | 鎖定 | grill B/k8s-and-metrics 分數 0 < 2；grill B/api 分數 0 < 2；課程 07/02 未出貨 | replicas 改成 3 時哪裡會出錯？你會對哪個指標設告警？ |
@@ -19,6 +20,7 @@
 
 ## 敘述預覽（含未解鎖；數字取自目前的 metrics.json）
 
+- **L1-tsunami-sensitivity**（鎖定）：以 COMCOT 淺水方程模式建立台灣海嘯情境實驗：真實地形（ETOPO）、文獻依據的馬尼拉海溝斷層情境，分析地震規模、線性／非線性方程與網格解析度對沿岸最大水位的敏感度。
 - **A1-solver**（鎖定）：建置一維淺水方程有限體積（HLL 通量）潰壩模擬器，以 Stoker 解析解驗證：N=400 時 L1 誤差 33.16 m²、觀測收斂階 0.927，總水量守恆至機器精度；並量化乾床前緣落後解析解的程度及其對淹水範圍預報的影響。
 - **A2-async-api**（鎖定）：設計非同步模擬服務（FastAPI＋SQLite 工作佇列＋worker）：202／Location 工作模式、RFC 9457 錯誤格式、冪等鍵、輸入上限與 worker 逾時重排，17 個自動化測試涵蓋邊界情境。
 - **A3-compose**（鎖定）：以 Docker Compose 部署 API 與 worker（非 root 容器、健康檢查、共用資料卷），並分析單機 SQLite 佇列在 10 倍負載下的瓶頸與替代方案。

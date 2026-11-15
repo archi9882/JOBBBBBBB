@@ -1,0 +1,134 @@
+# 卡片佇列：依序做，一晚一張，每張約 30 分鐘。
+# kind：預測（先猜再跑）、偵探（找原因）、拷問（grill-me 小場）、資料、文獻、對決（否證 AI）、平台
+# 規則：先寫下預測才准執行；預測錯了不扣分，錯得越有趣越值得記。
+# milestone：做完這張會解鎖的東西（成就感來源）。
+
+[[card]]
+id = "01"
+kind = "預測"
+title = "第一個海嘯"
+context = "COMCOT 解球面座標的淺水方程。玩具情境：馬尼拉海溝附近一個 200 km × 80 km 的逆衝斷層，滑移 5 m，合成地形，東北方有一座方形的島。"
+predict = "波從震源（119.5E, 20N）傳到島的西南角（121E, 22N）大約要幾分鐘？島的哪一側水位最高？"
+run = ["bash lab/tools/setup_comcot.sh", "python lab/tools/run_case.py toy"]
+win = "lab/runs/toy/map.png：你的第一張海嘯圖"
+milestone = "COMCOT 在你的電腦上跑起來"
+
+[[card]]
+id = "02"
+kind = "預測"
+title = "滑移量加倍"
+context = "情境 toy_slip10 只把滑移量從 5 m 改成 10 m，其他不變。目前用的是線性淺水方程。"
+predict = "最大水位會變成原本的幾倍？剛好 2 倍、多於 2 倍，還是少於 2 倍？理由是什麼？"
+run = ["python lab/tools/run_case.py toy_slip10"]
+win = "兩張圖並排，以及一句「為什麼是這個倍數」"
+milestone = ""
+
+[[card]]
+id = "03"
+kind = "偵探"
+title = "星號為什麼在隆起區的邊上"
+context = "卡 01 的最大水位圖上，最強的區域在星號（你給的震央座標）西側，不是以它為中心。"
+predict = "COMCOT 的「Epicenter Location」指的是斷層面上的哪一點？猜一個，再到 vendor/comcot-gfortran/deform.f90 或使用手冊找證據。"
+run = ["grep -n -i epicenter lab/vendor/comcot-gfortran/deform.f90 | head"]
+win = "一句話：這個座標的定義，以及設定真實情境時要注意什麼"
+milestone = ""
+
+[[card]]
+id = "04"
+kind = "預測"
+title = "時間步放大 10 倍"
+context = "情境 toy_dt30 把時間步從 3 秒改成 30 秒。專案 A 的 CFL 條件：Δt ≤ Cr·Δx / √(gh)。"
+predict = "模擬會發散、變不準，還是沒事？如果沒事，為什麼？"
+run = ["python lab/tools/run_case.py toy_dt30", "grep -i -A2 'time step' lab/runs/toy_dt30/run.log | head"]
+win = "用 CFL 自己算出 COMCOT 實際用的時間步，誤差在 1% 以內"
+milestone = "第一次親手驗算模式內部的數值"
+
+[[card]]
+id = "05"
+kind = "拷問"
+title = "grill me A/cfl-and-boundaries"
+context = "你剛在卡 04 看到 COMCOT 自動調整時間步。現在拷問同樣的概念在專案 A 的求解器裡怎麼寫。"
+predict = "不需要預測；直接說「grill me A/cfl-and-boundaries」。"
+run = []
+win = "第一個拷問分數入帳"
+milestone = "grill 分數第一筆"
+
+[[card]]
+id = "06"
+kind = "資料"
+title = "真實的台灣地形"
+context = "把合成地形換成真實地形。來源可用 NOAA 的 ETOPO 2022（1 弧分）或 GEBCO；Claude 陪你找官方下載方式並寫轉換程式（轉成 經度 緯度 高程 的 ETOPO xyz 格式）。"
+predict = "116–124E、18–26N、1 弧分的 xyz 檔大約幾 MB？COMCOT 讀這個檔要多久？"
+run = []
+win = "lab/data/taiwan_1min.xyz，以及一張真實海岸線的地形圖"
+milestone = "從玩具地形換成真實台灣"
+
+[[card]]
+id = "07"
+kind = "預測"
+title = "真實地形上的玩具斷層"
+context = "卡 01 的斷層不變，地形換成真實台灣。"
+predict = "台灣沿岸哪一段最大水位最高？恆春半島、台南、還是高雄？為什麼？"
+run = []
+win = "真實台灣的最大水位圖"
+milestone = ""
+
+[[card]]
+id = "08"
+kind = "文獻"
+title = "找一組有出處的馬尼拉海溝情境"
+context = "玩具斷層參數是 Claude 隨便給的。找一篇同儕審查文獻中的馬尼拉海溝情境參數（候選：Megawati et al. 2009, J. Asian Earth Sciences, DOI 10.1016/j.jseaes.2008.12.010，需自行核對）。"
+predict = "規模 Mw 9 的斷層，長度、寬度、滑移量大約多少？先猜，再查。"
+run = []
+win = "lab/cases.py 新增一個有出處的情境，註明文獻與頁碼"
+milestone = ""
+
+[[card]]
+id = "09"
+kind = "預測"
+title = "Mw 8.5 對 Mw 9.0"
+context = "用卡 08 的情境，做一個 8.5、一個 9.0（規模與地震矩的關係：Mw = (2/3)(log10 M0 − 9.1)，M0 = 剛性 × 面積 × 滑移）。"
+predict = "恆春附近的最大水位，9.0 是 8.5 的幾倍？"
+run = []
+win = "兩個規模的比較圖與倍數"
+milestone = ""
+
+[[card]]
+id = "10"
+kind = "預測"
+title = "線性對非線性"
+context = "COMCOT 可在近岸改用非線性方程並加摩擦。卡 02 的「剛好 2 倍」在非線性下還成立嗎？"
+predict = "非線性加摩擦後，近岸最大水位變高還是變低？倍數關係會怎樣？"
+run = []
+win = "線性、非線性的差異圖"
+milestone = ""
+
+[[card]]
+id = "11"
+kind = "預測"
+title = "網格解析度要多細才夠"
+context = "同一個情境用 4′、2′、1′ 三種網格。這是職缺說的「哪個環節對數值誤差最敏感」。"
+predict = "恆春外海一個測站的最大水位，從 4′ 到 1′ 會改變多少？會收斂嗎？"
+run = []
+win = "解析度對最大水位的表與一句判斷"
+milestone = "解鎖履歷：海嘯情境敏感度分析"
+
+[[card]]
+id = "12"
+kind = "對決"
+title = "叫 AI 寫一份 comcot.ctl"
+context = "請任何一個 AI（不用 lab/tools）直接寫一份 COMCOT 控制檔。Claude 寫 lab 工具時就踩過兩個坑，你來看別的 AI 會不會也踩。"
+predict = "它會在哪裡出錯？先列 3 個你覺得最可能的錯。"
+run = []
+win = "docs/ai-falsification-log.md 新增一筆作者為「我」的紀錄"
+milestone = "第一筆自己抓到的 AI 錯誤"
+
+[[card]]
+id = "13"
+kind = "平台"
+title = "睡前排 5 個情境，起床看結果"
+context = "把 COMCOT 包進 Docker，用一行指令依序跑 5 個情境並產生圖。這是自架平台的第一步。"
+predict = "5 個 1 弧分真實地形情境，總共要跑多久？"
+run = []
+win = "一個指令、5 張圖"
+milestone = "自架平台起點"

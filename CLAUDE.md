@@ -2,46 +2,41 @@
 
 這個 repo 是使用者應徵「數值模擬 × 自架基礎設施 × 生成式 AI 否證」職缺的作品集與訓練場。全程用繁體中文回覆，技術名詞附英文，回報簡短。
 
-## 開工時先做
-1. 讀 `TODO.md`，從第一個未勾選的步驟接著做或引導使用者做。步驟的完成條件實際驗證通過後才打勾並 commit。
-2. 需要背景時讀 `README.md`（路線與目錄）與 `docs/depth-tiers.md`（每堂課由誰做）。
+## 主線：海嘯實驗室（2026-11-15 起）
+- 使用者每次只有約 30 分鐘。**一晚一張卡**：先猜 → 再跑 → 看圖 → 一句收穫。卡片在 `lab/cards.toml`，流程見 `.claude/skills/card/`。
+- 使用者說「下一張卡」「今天做什麼」或開新工作階段沒有特別指示時：執行 `python lab/tools/card.py`，照 card 技能進行。
+- 做完一張就停，問要不要再一張。不主動延長，不在卡片中途提出新流程。
 
-## 路線
-速成專案 A、B（Claude 寫好）→ 講解（拷問前先逐元件白話講解，假設使用者沒有背景，附小數字例子，不計分；使用者說「先教」或拷問中卡住時進入）→ grill-me 拷問拆解 → 補課（`phases/`）→ 使用者從零寫專案 C → `tools/resume_gen.py` 依證據解鎖履歷。
+## 流程預算（重要）
+- 新增任何規則、文件或步驟之前，必須先刪掉或合併一個，並在 commit 訊息說明刪了什麼。
+- 想到的改進一律寫進 `lab/ideas.md` 一行，留到使用者週末決定。
+- 不要求使用者寫說明文件（ARCHITECTURE.md 之類）；需要時由 Claude 寫。
 
-## 誰寫程式（最重要）
-- **專案 C（`projects/C-groundwater-bottomup/`）**：Claude 不寫任何程式碼，只拷問、審查、查文件。使用者要求代寫時，提醒這條規則並改成提示或拷問。
-- **課程依 `docs/depth-tiers.md` 分級**：
-  - A 親手做：不產生該課的 `code/`、`tests/`、`math.md` 內容；只出題、審查、指出錯誤位置，不直接給修正。
-  - B Agent 做、使用者驗收：可以寫，但要先請使用者寫出或確認驗收條件，寫完由使用者跑測試並讀懂結果。
-  - C 只讀懂：可以直接做，做完用一兩句說明重點。
-  - 校準規則照該檔：同類事情 Claude 連續錯兩次 → 升一級；連續三次都對 → 降一級。調整時更新該檔並說明理由。
-- 專案 A、B：可以修改，但改動要寫進該專案的 `falsification.md` 或 commit 訊息說明原因。
-- **註記文件（生產範例專案時必做）**：每個由 Claude 生產的範例專案，根目錄都要有 `ARCHITECTURE.md`，內容至少包含：(1) 每個程式檔（含 `scripts/`、設定檔、測試）的作用，一檔一行；(2) 資料流（誰呼叫誰、資料經過哪些檔案），用文字圖表示；(3) 各檔對應的拷問目標或 lesson。新增、刪除或改變檔案職責時，同一個 commit 要更新它。專案 C 由使用者自己寫，不適用。
+## 誰寫程式
+- `lab/tools/`、`lab/cases.py`：Claude 可以寫（工具）。卡片的預測、判讀與收穫由使用者做。
+- **專案 C（`projects/C-groundwater-bottomup/`）**：Claude 不寫程式碼，只拷問、審查、查文件。
+- `phases/` 課程依 `docs/depth-tiers.md` 分級（A 親手做、B Agent 做使用者驗收、C 只讀懂）。目前課程與專案 C 都是副線，卡片引導到時才做。
+- 專案 A、B：可以修改，改動寫進該專案 `falsification.md` 或 commit 訊息。
 
 ## 不可以做的事
-- 不手動修改 `grill/scores.json`；只有 grill-me 拷問結束時依實際表現寫入。使用者要求灌分時拒絕。
-- 不手動修改 `resume/generated/`；那是 `tools/resume_gen.py` 的輸出。
-- `docs/ai-falsification-log.md` 的「作者」欄：使用者自己抓到的寫「我」，Claude 抓到或犯的寫「Claude」。履歷只計「我」，不可混淆。
-- 不在專案 C 的未解鎖層放 `.py`（`tools/gate.py` 會讓 CI 失敗）。
+- 不手動修改 `grill/scores.json`（只由 grill-me 依實際表現寫入）與 `resume/generated/`（由 `tools/resume_gen.py` 產生）。
+- 不手動修改 `lab/progress.json`、`lab/log.md`（由 `lab/tools/card.py` 寫入）。
+- `docs/ai-falsification-log.md` 的「作者」欄：使用者抓到的寫「我」，Claude 抓到或犯的寫「Claude」。
+- 不在專案 C 的未解鎖層放 `.py`。
 
 ## 常用指令
 ```bash
-pytest                                  # 全部測試（2026-11-08 為 62 個）
-python tools/ship_check.py --run        # 42 堂課出貨狀態
-python tools/gate.py                    # 專案 C 關卡
+python lab/tools/card.py                # 下一張卡與進度
+python lab/tools/run_case.py <情境>     # 跑 COMCOT 情境
+pytest                                  # 全部測試
 python tools/resume_gen.py --refresh    # 履歷生產表
-python tools/gen.py                     # 改 tools/curriculum.py 後重產課程骨架
+python tools/gate.py                    # 專案 C 關卡
 ```
-- `pytest.ini` 已有 `addopts = -q`。在子程序中解析「N passed」時要用 `-o addopts=--import-mode=importlib -q`，否則兩個 `-q` 會讓摘要行消失。
-- 專案 A 的測試靠 `tests/conftest.py` 加入 `src/`；單獨跑：`PYTHONPATH=src python -m pytest -o addopts= -q tests`。
-
-## 技能
-- `grill-me`（`.claude/skills/grill-me/`）：使用者說「grill me <目標>」時使用。目標清單在 `grill/targets.toml`。進場條件：使用者必須先讀懂該目標的程式並親自跑過（說得出指令與實際結果），否則不開始拷問。
+- `pytest.ini` 已有 `addopts = -q`；子程序解析「N passed」時用 `-o addopts=--import-mode=importlib -q`。
 
 ## 驗證習慣
-- 數值、API 用法、套件預設值都以實跑為準；說法被測試推翻就記到對應的 `falsification.md`。
-- 套件 API（FastAPI、pandas、pyproj、k3d 等）以官方文件確認，不憑記憶。
+- 數值、API 用法、套件預設值都以實跑為準；說法被推翻就記到對應的 `falsification.md`。
+- 文獻與外部資料來源要實際查證，查不到標「未查證」。
 
-## 已知未實測
-Docker 映像建置、Docker Compose、k3d 部署、在使用者 WSL2 上的執行（見 TODO 02–07）。
+## 舊文件
+`docs/archive/` 是 2026-11-15 以前的 TODO 與指令速查，只供查閱。

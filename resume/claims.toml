@@ -6,12 +6,21 @@
 #   lessons     課程已出貨（推導＋程式＋測試＋否證）
 #   layers      專案 C 的層已通過（tools/gate.py）
 #   metrics     專案 metrics.json 的條件，格式 "A.key op 值"，op 為 == != > >= < <=
+#   cards       實驗室卡已完成（lab/progress.json）
 #   falsification_mine  docs/ai-falsification-log.md 中作者為「我」的筆數下限
 #
 # 敘述中的 {A.key} 或 {A.key:格式} 會換成 metrics.json 的數值；{falsification_mine} 為筆數。
 #
 # 誠實原則：A、B 是 Claude 寫的速成版，所以敘述只有在你通過拷問（能解釋並預測改動後果）後才解鎖，
 # 用詞是「建置／驗證」，不寫「獨立設計」。專案 C 由你從零撰寫，才用「從零實作」。
+
+[[claim]]
+id = "L1-tsunami-sensitivity"
+capability = "M1 數值模擬與物理判斷"
+requires.cards = ["06", "08", "09", "10", "11"]
+zh = "以 COMCOT 淺水方程模式建立台灣海嘯情境實驗：真實地形（ETOPO）、文獻依據的馬尼拉海溝斷層情境，分析地震規模、線性／非線性方程與網格解析度對沿岸最大水位的敏感度。"
+en = "Built Taiwan tsunami scenario experiments with the COMCOT shallow-water model using real bathymetry and literature-based Manila Trench sources, and analysed the sensitivity of coastal maximum water level to magnitude, linear vs nonlinear physics and grid resolution."
+interview = "網格要多細才夠？你怎麼知道？什麼情況你不信這個模式的結果？"
 
 [[claim]]
 id = "A1-solver"

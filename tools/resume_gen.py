@@ -83,6 +83,9 @@ def evaluate(claim, metrics, scores, layers, nmine):
         ok, why = check_metric(e, metrics)
         if not ok:
             missing.append(why)
+    lab = ROOT / "lab" / "progress.json"
+    done = json.loads(lab.read_text(encoding="utf-8"))["done"] if lab.exists() else {}
+    missing += [f"實驗室卡 {x} 未完成" for x in req.get("cards", []) if x not in done]
     need = req.get("falsification_mine")
     if need and nmine < need:
         missing.append(f"自己的否證紀錄 {nmine} 筆 < {need}")
