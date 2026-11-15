@@ -2,9 +2,13 @@
 
     python lab/tools/card.py              # 顯示下一張卡與進度
     python lab/tools/card.py done 01 "一句收穫"   # 完成一張卡（寫入 lab/progress.json 與 lab/log.md）
+    python lab/tools/card.py check [卡號]         # 跑實作卡的驗收測試（預設是下一張卡）
+    python lab/tools/card.py hint 1|2|3 [卡號]    # 實作卡卡住時，依序看三層提示
+實作卡的驗收測試沒過，done 不會記錄。MINE_DIR=lab/mine_ai 可改測別的程式目錄（卡 21）。
 """
 import datetime as dt
 import json
+import subprocess
 import sys
 import tomllib
 from pathlib import Path
@@ -53,9 +57,42 @@ def status(p):
     print(f"\n下一張　卡 {nxt['id']}［{nxt['kind']}］{nxt['title']}")
     print(f"背景：{nxt['context']}")
     print(f"先預測：{nxt['predict']}")
+    if nxt.get("spec"):
+        print(f"要寫的：{nxt['spec']}")
+        print(f"驗收：python lab/tools/card.py check　｜　卡住：python lab/tools/card.py hint 1（最多到 3）")
     if nxt.get("run"):
         print("然後執行：\n  " + "\n  ".join(nxt["run"]))
     print(f"成果：{nxt['win']}")
+
+
+def find(cid):
+    p = load()
+    if cid is None:
+        c = next((c for c in CARDS if c["id"] not in p["done"]), None)
+    else:
+        c = next((c for c in CARDS if c["id"] == cid), None)
+    if c is None:
+        sys.exit("沒有這張卡（或佇列已做完）")
+    return c
+
+
+def run_check(card):
+    """跑驗收測試；沒有 check 欄位的卡視為通過。回傳是否通過。"""
+    if not card.get("check"):
+        return True
+    root = LAB.parent
+    r = subprocess.run([sys.executable, "-m", "pytest", "-o", "addopts=", "-q", "-x", "--tb=short", card["check"]], cwd=root)
+    return r.returncode == 0
+
+
+def hint(level, cid):
+    card = find(cid)
+    hs = card.get("hints") or []
+    if not hs:
+        sys.exit(f"卡 {card['id']} 沒有提示")
+    if not 1 <= level <= len(hs):
+        sys.exit(f"提示層級 1–{len(hs)}")
+    print(f"卡 {card['id']} 提示 {level}/{len(hs)}：{hs[level - 1]}")
 
 
 def done(cid, note):
@@ -63,6 +100,8 @@ def done(cid, note):
     card = next((c for c in CARDS if c["id"] == cid), None)
     if card is None:
         sys.exit(f"沒有卡 {cid}")
+    if not run_check(card):
+        sys.exit(f"✗ 卡 {cid} 的驗收測試沒過，不記錄完成。修好再 done。")
     today = dt.date.today().isoformat()
     p["done"][cid] = {"date": today, "note": note}
     PROG.write_text(json.dumps(p, ensure_ascii=False, indent=2), encoding="utf-8")
@@ -78,7 +117,15 @@ def done(cid, note):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) >= 3 and sys.argv[1] == "done":
-        done(sys.argv[2], " ".join(sys.argv[3:]) or "—")
+    a = sys.argv[1:]
+    if len(a) >= 2 and a[0] == "done":
+        done(a[1], " ".join(a[2:]) or "—")
+    elif a and a[0] == "check":
+        c = find(a[1] if len(a) > 1 else None)
+        if not c.get("check"):
+            sys.exit(f"卡 {c['id']} 沒有驗收測試")
+        sys.exit(0 if run_check(c) else 1)
+    elif a and a[0] == "hint" and len(a) >= 2:
+        hint(int(a[1]), a[2] if len(a) > 2 else None)
     else:
         status(load())

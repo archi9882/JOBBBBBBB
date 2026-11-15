@@ -1,5 +1,6 @@
 # 卡片佇列：依序做，一晚一張，每張約 30 分鐘。
-# kind：預測（先猜再跑）、偵探（找原因）、拷問（grill-me 小場）、資料、文獻、對決（否證 AI）、平台
+# kind：預測（先猜再跑）、偵探（找原因）、拷問（grill-me 小場）、文獻、對決（否證 AI）、
+#       實作（你自己寫程式；Claude 只出題與審查，驗收看 check 的測試）
 # 規則：先寫下預測才准執行；預測錯了不扣分，錯得越有趣越值得記。
 # milestone：做完這張會解鎖的東西（成就感來源）。
 
@@ -53,28 +54,89 @@ run = []
 win = "第一個拷問分數入帳"
 milestone = "grill 分數第一筆"
 
+# 實作卡的欄位：spec（要寫什麼、寫在哪）、check（驗收測試；全過才能 card.py done）、
+#              hints（三層提示，卡住才依序看：python lab/tools/card.py hint 1|2|3）。程式寫在 lab/mine/。
+
 [[card]]
 id = "06"
-kind = "資料"
-title = "真實的台灣地形"
-context = "把合成地形換成真實地形。來源可用 NOAA 的 ETOPO 2022（1 弧分）或 GEBCO；Claude 陪你找官方下載方式並寫轉換程式（轉成 經度 緯度 高程 的 ETOPO xyz 格式）。"
-predict = "116–124E、18–26N、1 弧分的 xyz 檔大約幾 MB？COMCOT 讀這個檔要多久？"
-run = []
-win = "lab/data/taiwan_1min.xyz，以及一張真實海岸線的地形圖"
-milestone = "從玩具地形換成真實台灣"
+kind = "實作"
+title = "一維走時：波從震源到岸邊要多久"
+context = "長波（海嘯）速度是 √(g·h)，水越淺越慢。沿一條水深剖面把 dx/√(g·h) 加起來，就是走時。你現在要自己寫這個最小的海嘯模型，之後拿它檢查 COMCOT。"
+predict = "水深 4000 m 的 100 km 外海，走時大約幾分鐘？如果水深線性變淺到 100 m，會比一直 4000 m 多出幾倍？"
+spec = "寫 lab/mine/wave1d.py：cumulative_time(h, dx) 回傳每個節點的累積走時（第一個是 0）；travel_time(h, dx) 回傳總走時；h 是各節點水深（m），dx 是間距（m）；水深 ≤ 0 要 raise ValueError。用梯形法，不要用總和當近似。"
+check = "lab/checks/test_c06.py"
+hints = [
+  "波速在每個小區間不是常數：兩端節點的 1/√(g h) 平均一下，再乘 dx，就是這個區間的走時。",
+  "先算 c = 1/√(g·h)（慢度）陣列，再 np.cumsum(0.5*(c[1:]+c[:-1])*dx)；累積結果前面補一個 0。",
+  "用 np.asarray(h, float)；if np.any(h <= 0): raise ValueError。cumulative_time 回傳 np.concatenate([[0.0], np.cumsum(...)])，travel_time 取它的最後一個。",
+]
+run = ["python lab/tools/card.py check"]
+win = "自己寫的函式和線性變淺解析解吻合；再拿卡 01 的震源到島的走時，和你在卡 01 看到的 COMCOT 到達時間比，說出差在哪（提示：波在 COMCOT 裡走的是二維球面、不是一條直線）"
+milestone = "第一段你自己寫的模擬程式"
 
 [[card]]
 id = "07"
-kind = "預測"
-title = "真實地形上的玩具斷層"
-context = "卡 01 的斷層不變，地形換成真實台灣。"
-predict = "台灣沿岸哪一段最大水位最高？恆春半島、台南、還是高雄？為什麼？"
-run = []
-win = "真實台灣的最大水位圖"
+kind = "實作"
+title = "自己的最大水位後處理"
+context = "COMCOT 每隔 save_every 秒存一張水面 z_01_*.dat，最後還給一張 zmax_layer01.dat。你要自己從快照取最大值，並找出「海岸邊」最高的那一格。"
+predict = "你自己從快照算的最大水位，會比 COMCOT 給的 zmax 大、小，還是一樣？差多少？"
+spec = "寫 lab/mine/zmax.py：max_over_snapshots(run_dir) 讀所有 z_01_*.dat 逐格取時間最大值（回傳和網格同形狀的陣列）；shoreline_max(h, zmax) 在『鄰接陸地的海格』（上下左右任一格是陸地；h>0 為海、h≤0 為陸）中找最大值，回傳 (值, (j, i))；沒有海岸要 raise ValueError。檔案格式參考 lab/tools/plot.py 的 load()。"
+check = "lab/checks/test_c07.py"
+hints = [
+  "快照是一維文字流，要 reshape 成 (len(y), len(x))。逐張讀進來，用 np.maximum 累積。",
+  "海岸格 = 海格 且 上下左右至少一個鄰居是陸地。用布林陣列位移（切片）比用迴圈快也不易寫錯。",
+  "land = h <= 0；near = np.zeros_like(land)；near[1:] |= land[:-1]；near[:-1] |= land[1:]；左右同理；mask = ~land & near；np.where(mask, zmax, -np.inf) 再 argmax。",
+]
+run = ["python lab/tools/card.py check", "python lab/tools/run_case.py toy"]
+win = "對 toy 情境跑你的 max_over_snapshots，與 COMCOT 的 zmax 比較，寫出最大差異和原因（快照只有每 600 秒一張）"
 milestone = ""
 
 [[card]]
 id = "08"
+kind = "實作"
+title = "真實台灣地形：ETOPO 轉成 COMCOT 格式"
+context = "把合成地形換成真實地形。到 NOAA NCEI 的 ETOPO 2022 頁面下載 60 弧秒（1 弧分）版本，檔名、網址與格式請自行核對官方頁面。裁出 116–124°E、16–26°N，轉成『經度 緯度 高程』文字檔。海是負的、陸是正的。"
+predict = "116–124E、16–26N、1 弧分的 xyz 檔大約幾 MB？有幾行？"
+spec = "寫 lab/mine/etopo_to_xyz.py：crop_to_xyz(lon, lat, z, bbox) 回傳 (N,3) 陣列，bbox=(x0,x1,y0,y1) 含邊界，緯度由小到大、同緯度內經度由小到大；範圍內有 NaN、或裁完是空的要 raise ValueError；write_xyz(path, xyz) 輸出 '經度.5f 緯度.5f 高程.1f'。另外寫一個 main（或在終端機用 python -c）讀你下載的檔案，輸出 lab/data/taiwan_1min.xyz。"
+check = "lab/checks/test_c08.py"
+hints = [
+  "用 np.where 或布林遮罩分別選出經度、緯度的索引，再用 np.ix_ 取子陣列。緯度如果是由大到小，先排序（z 的列也要跟著換）。",
+  "meshgrid(lon[mi], lat[mj]) 的 ravel 順序剛好是『緯度外圈、經度內圈』。讀 NetCDF 用 xarray 或 netCDF4（先查檔案裡的變數名稱，不要猜）。",
+  "核對：左下角格點是 (116, 16)；檔案行數 = 經度格數 × 緯度格數；海洋的高程應為負數。把 xyz 畫成圖，台灣要在東邊。",
+]
+run = ["python lab/tools/card.py check"]
+win = "lab/data/taiwan_1min.xyz，以及一張你自己用它畫的地形圖（台灣在正確的位置）"
+milestone = "從玩具地形換成真實台灣"
+
+[[card]]
+id = "09"
+kind = "預測"
+title = "真實地形上的玩具斷層"
+context = "卡 01 的斷層不變，改用 `real` 情境（lab/cases.py，用你卡 08 產生的地形）。"
+predict = "台灣沿岸哪一段最大水位最高？恆春半島、台南、還是高雄？為什麼？"
+run = ["python lab/tools/run_case.py real"]
+win = "真實台灣的最大水位圖；用卡 07 的 shoreline_max 找出最高的海岸格，並說出它在哪個縣市"
+milestone = ""
+
+[[card]]
+id = "10"
+kind = "實作"
+title = "TWD97 座標與測站距離"
+context = "台灣的圖資與測站座標常用 TWD97（TM2，EPSG:3826）。經緯度和平面座標混用、或經緯度順序寫反，是最常見的空間資料錯誤。"
+predict = "經度 121°E 的點，TWD97 的 X 座標是多少？台灣南北 1 度的距離大約幾公里？"
+spec = "寫 lab/mine/twd97.py：to_twd97(lon, lat) 回傳 (x, y)（公尺）；from_twd97(x, y) 回傳 (lon, lat)；distance_m(p, q) 以 TWD97 平面座標算兩個 (lon, lat) 點的距離。用 pyproj；注意軸順序。"
+check = "lab/checks/test_c10.py"
+hints = [
+  "Transformer.from_crs(4326, 3826, always_xy=True)：always_xy 讓輸入永遠是 (經度, 緯度)。",
+  "建一次 Transformer 重複用；反向再建一個。distance 用 np.hypot。",
+  "如果 x 離 250000 差很遠，八成是經緯度順序反了；如果差 0.1% 左右是正常的（平面距離對球面距離）。",
+]
+run = ["python lab/tools/card.py check"]
+win = "算出恆春外海測站 (120.3E, 22.6N) 到卡 01 震央 (119.5E, 20N) 的距離，並說出你的值和大圓距離差多少 %"
+milestone = ""
+
+[[card]]
+id = "11"
 kind = "文獻"
 title = "找一組有出處的馬尼拉海溝情境"
 context = "玩具斷層參數是 Claude 隨便給的。找一篇同儕審查文獻中的馬尼拉海溝情境參數（候選：Megawati et al. 2009, J. Asian Earth Sciences, DOI 10.1016/j.jseaes.2008.12.010，需自行核對）。"
@@ -84,37 +146,68 @@ win = "lab/cases.py 新增一個有出處的情境，註明文獻與頁碼"
 milestone = ""
 
 [[card]]
-id = "09"
-kind = "預測"
-title = "Mw 8.5 對 Mw 9.0"
-context = "用卡 08 的情境，做一個 8.5、一個 9.0（規模與地震矩的關係：Mw = (2/3)(log10 M0 − 9.1)，M0 = 剛性 × 面積 × 滑移）。"
-predict = "恆春附近的最大水位，9.0 是 8.5 的幾倍？"
-run = []
-win = "兩個規模的比較圖與倍數"
+id = "12"
+kind = "實作"
+title = "規模換成滑移量：Mw 8.5 對 9.0"
+context = "地震矩 M0 = μ·A·D（剛性 × 斷層面積 × 滑移量），Mw = (2/3)(log10 M0 − 9.1)，M0 單位 N·m。用卡 11 的斷層面積，把規模換成 COMCOT 要的滑移量。"
+predict = "同一個斷層面積，Mw 9.0 的滑移量是 8.5 的幾倍？恆春附近的最大水位會是幾倍？"
+spec = "寫 lab/mine/moment.py：moment_from_mw(mw)、mw_from_moment(m0)、slip_for_mw(mw, length, width, mu=3e10)（長寬單位公尺，回傳公尺）；長寬相乘小於 1e8 m² 要 raise ValueError（多半是把公里當公尺）。"
+check = "lab/checks/test_c12.py"
+hints = [
+  "log10 M0 = 1.5·Mw + 9.1。把公式移項，別背。",
+  "D = M0 / (μ·L·W)。M0 的量級約 1e22，單位是 N·m，不要和 dyn·cm（1e7 倍）搞混。",
+  "規模差 0.5，M0 差 10^0.75 ≈ 5.6 倍；同面積下滑移量同比例。",
+]
+run = ["python lab/tools/card.py check", "python lab/tools/run_case.py real_mw85", "python lab/tools/run_case.py real_mw90"]
+win = "用你的函式算兩個規模的滑移量、加進 lab/cases.py（real_mw85、real_mw90），跑完比較恆春外海最大水位的倍數，和預測比"
 milestone = ""
 
 [[card]]
-id = "10"
+id = "13"
 kind = "預測"
 title = "線性對非線性"
-context = "COMCOT 可在近岸改用非線性方程並加摩擦。卡 02 的「剛好 2 倍」在非線性下還成立嗎？"
+context = "COMCOT 可在近岸改用非線性方程並加摩擦（comcot_ctl.py 的 nonlinear、manning 參數）。卡 02 的「剛好 2 倍」在非線性下還成立嗎？"
 predict = "非線性加摩擦後，近岸最大水位變高還是變低？倍數關係會怎樣？"
 run = []
-win = "線性、非線性的差異圖"
+win = "線性、非線性的差異圖，以及滑移量加倍的倍數"
 milestone = ""
 
 [[card]]
-id = "11"
-kind = "預測"
-title = "網格解析度要多細才夠"
-context = "同一個情境用 4′、2′、1′ 三種網格。這是職缺說的「哪個環節對數值誤差最敏感」。"
-predict = "恆春外海一個測站的最大水位，從 4′ 到 1′ 會改變多少？會收斂嗎？"
-run = []
-win = "解析度對最大水位的表與一句判斷"
+id = "14"
+kind = "實作"
+title = "網格要多細才夠：收斂階"
+context = "這是職缺說的「哪個環節對數值誤差最敏感」。同一情境用 4′、2′、1′ 三種網格跑，沒有解析解，所以用 Richardson 外插估計收斂階與『無限細』的值。"
+predict = "恆春外海一個測站的最大水位，從 4′ 到 1′ 會改變多少？會收斂嗎？階數大概幾？"
+spec = "寫 lab/mine/convergence.py：observed_order(h, err)（對 log h、log err 做線性擬合，回傳斜率；誤差或 h 不是正數要 raise ValueError）；richardson_order(f1, f2, f3, r=2)（粗→細三個解，回傳階數；不是單調收斂要 raise ValueError）；extrapolate(f2, f3, p, r=2) 回傳外插值。"
+check = "lab/checks/test_c14.py"
+hints = [
+  "若 f(h)=f0+C·h^p，則 (f1−f2)/(f2−f3) = r^p，所以 p = log(比值)/log(r)。",
+  "f(h) = f0 + C h^p 時，f3 + (f3−f2)/(r^p − 1) = f0。先自己用數字代一次確認。",
+  "什麼情況不能算：f1−f2 與 f2−f3 異號（振盪）、有一個是 0、或後者比前者大（越細越不收斂）。這些就是『還沒進入漸近範圍』，要 raise。",
+]
+run = ["python lab/tools/card.py check", "python lab/tools/run_case.py real_dx4", "python lab/tools/run_case.py real_dx2", "python lab/tools/run_case.py real"]
+win = "在 lab/cases.py 加 real_dx4、real_dx2（把 real 的 dx_min 改成 4.0、2.0），跑三個網格，用你的函式算出階數與外插值，並用一句話說明這個測站的結果可不可以信"
 milestone = "解鎖履歷：海嘯情境敏感度分析"
 
 [[card]]
-id = "12"
+id = "15"
+kind = "實作"
+title = "潮位站資料清理"
+context = "要拿模擬和潮位站實測比對，先要把資料洗乾淨：時間是當地時間（UTC+8）還是 UTC、缺測用 −999 還是空白、同一時刻重複紀錄。這張卡用測試裡造的髒資料練習，不下載真實資料。"
+predict = "7 筆髒資料裡，你覺得會留下幾筆？被拒收的要記錄原因，還是直接丟掉？"
+spec = "寫 lab/mine/tide_etl.py：clean_tide(df, tz) 輸入欄位 station、time（字串，當地時間）、level_cm；回傳 (clean, rejected)。規則：−999 與 9999 是缺測哨兵值；水位超過 ±1000 cm 視為超出範圍；完全相同的重複列合併成一筆；同站同時刻但數值不同的列『全部』拒收；clean 的 time 轉成 UTC（tz-aware）並依時間排序；rejected 要有 reason 欄（sentinel、out_of_range、duplicate_conflict）。不可修改輸入。"
+check = "lab/checks/test_c15.py"
+hints = [
+  "先把問題分類：哪些是『這一列本身壞了』（哨兵、範圍），哪些是『列與列之間衝突』（重複）。分兩個階段處理，順序會影響結果。",
+  "pd.to_datetime → dt.tz_localize(tz) → dt.tz_convert('UTC')。先 df.copy()。每個階段把被篩掉的列 assign(reason=...) 收集起來，最後 pd.concat。",
+  "完全重複用 drop_duplicates()；衝突用 duplicated(['station','time'], keep=False)，要在 drop_duplicates 之後做，否則完全重複的也會被當成衝突。",
+]
+run = ["python lab/tools/card.py check"]
+win = "通過驗收，並說出：為什麼衝突的資料要『全部拒收』而不是留其中一筆"
+milestone = ""
+
+[[card]]
+id = "16"
 kind = "對決"
 title = "叫 AI 寫一份 comcot.ctl"
 context = "請任何一個 AI（不用 lab/tools）直接寫一份 COMCOT 控制檔。Claude 寫 lab 工具時就踩過兩個坑，你來看別的 AI 會不會也踩。"
@@ -124,11 +217,79 @@ win = "docs/ai-falsification-log.md 新增一筆作者為「我」的紀錄"
 milestone = "第一筆自己抓到的 AI 錯誤"
 
 [[card]]
-id = "13"
-kind = "平台"
-title = "睡前排 5 個情境，起床看結果"
-context = "把 COMCOT 包進 Docker，用一行指令依序跑 5 個情境並產生圖。這是自架平台的第一步。"
-predict = "5 個 1 弧分真實地形情境，總共要跑多久？"
-run = []
-win = "一個指令、5 張圖"
-milestone = "自架平台起點"
+id = "17"
+kind = "實作"
+title = "海嘯服務 API（上）：202、Location、輪詢"
+context = "模擬要跑幾分鐘，API 不該讓呼叫端等著。標準做法：POST 立刻回 202 與 Location，呼叫端輪詢工作狀態，完成後取圖。"
+predict = "POST 之後，工作的狀態會依序經過哪些值？如果服務在工作執行中被重啟，工作會怎樣？（先答，這是下一張卡才會處理的問題）"
+spec = "寫 lab/mine/api.py（FastAPI）：模組層級有 app、CASE_NAMES（set，預設取 lab/cases.py 的 CASES 鍵）、run_case(name) -> 地圖 png 路徑（預設呼叫 run_case.py 並回傳 lab/runs/<name>/map.png；測試會替換它）。POST /runs 傳 {\"case\": 名稱} → 202、Location: /runs/<id>、body {id, status}；GET /runs/<id> → {id, status}，status 是 queued、running、done、failed；GET /runs/<id>/map → 完成後回 image/png；未知 id → 404。工作要在背景執行，不能卡住 POST。"
+check = "lab/checks/test_c17.py"
+hints = [
+  "先不管背景執行：用一個 dict 當資料庫，POST 產生 id、存狀態、回 202。再把 run_case 改成在背景做。",
+  "背景可以用 threading.Thread(daemon=True)，或 FastAPI 的 BackgroundTasks。狀態寫回 dict：queued → running → done / failed。",
+  "Location 標頭用 JSONResponse(..., status_code=202, headers={'Location': f'/runs/{rid}'})；圖用 FileResponse(path, media_type='image/png')。測試會 monkeypatch api.run_case，所以呼叫時用 run_case(...)（模組層級名稱），不要把函式存到別的變數。",
+]
+run = ["python lab/tools/card.py check"]
+win = "uvicorn 起服務後，用 curl 對真的 COMCOT 送一個 toy，輪詢到完成並下載圖（貼上 curl 指令與結果）"
+milestone = "你自己的第一支模擬服務 API"
+
+[[card]]
+id = "18"
+kind = "實作"
+title = "海嘯服務 API（下）：錯誤格式、冪等、失敗"
+context = "使用者會送錯情境名稱、網路重送同一個 POST、COMCOT 崩潰。服務要用 RFC 9457 的 problem+json 回錯誤，同一個 Idempotency-Key 不能開出兩份工作。"
+predict = "同一個 POST 因為網路逾時被客戶端重送兩次，沒有任何保護時會發生什麼事？COMCOT 崩潰時，服務應該回 500、還是讓狀態變 failed？"
+spec = "擴充 lab/mine/api.py：錯誤一律回 application/problem+json，body 含 type、title、status、detail；未知情境與缺欄位都是 422（要覆寫 FastAPI 預設的驗證錯誤格式）；未知工作 404；失敗工作的狀態是 failed 並帶 error 欄位；對失敗或未完成的工作取 map → 409。Idempotency-Key 標頭：同 key 同 body → 回同一個工作（同 id、同 Location），同 key 不同 body → 422；沒有 key 每次都是新工作。"
+check = "lab/checks/test_c18.py"
+hints = [
+  "寫一個 problem(status, title, detail) 小函式，所有錯誤都走它；它回 JSONResponse(..., media_type='application/problem+json')。",
+  "覆寫驗證錯誤：@app.exception_handler(RequestValidationError)。背景工作要 try/except，把例外字串存進 error。",
+  "冪等：dict 存 key → (id, body)。查到 key：body 相同回舊的，不同回 422；查不到才建立新工作。注意檢查的位置要在建立工作之前。",
+]
+run = ["python lab/tools/card.py check"]
+win = "通過驗收，並寫下一個你的實作還沒處理的冪等問題（例如：服務重啟後 key 的紀錄在哪裡？）"
+milestone = ""
+
+[[card]]
+id = "19"
+kind = "實作"
+title = "把服務裝進 Docker（非 root、固定版本、健康檢查）"
+context = "COMCOT 要 gfortran，服務要 Python。映像要小、可重現、不用 root 跑。這張卡寫 Dockerfile 與 .dockerignore，驗收測試只檢查靜態規則，真正的驗收是你 docker build 並跑起來。"
+predict = "最後的映像大概幾百 MB？哪一層會最大？"
+spec = "寫 lab/mine/Dockerfile 與 lab/mine/.dockerignore：基底映像固定版本（不能是 latest 或沒有 tag）；apt-get install 後清掉 /var/lib/apt/lists；最後的 USER 不是 root；有 HEALTHCHECK；.dockerignore 排除 runs/ 與 .git/。映像要能啟動第 17、18 張卡的 API。"
+check = "lab/checks/test_c19.py"
+hints = [
+  "基底：python:3.12-slim-bookworm 這種有 tag 的。COMCOT 要在映像裡編譯：apt-get install gfortran make git，再執行 lab/tools/setup_comcot.sh。",
+  "建立使用者：RUN useradd -m app；USER app。要寫入的資料夾（runs）要先 chown 給它，否則服務一寫檔就失敗。",
+  "HEALTHCHECK 用 python -c 呼叫服務的 GET /runs/health（你自己加一個），別假設映像裡有 curl。",
+]
+run = ["python lab/tools/card.py check", "docker build -f lab/mine/Dockerfile -t tsunami-lab .", "docker run --rm -p 8000:8000 tsunami-lab"]
+win = "docker build 成功、容器內 id 不是 0（docker run --rm tsunami-lab id），並貼上 docker images 看到的大小"
+milestone = "自架平台起點：可攜的容器"
+
+[[card]]
+id = "20"
+kind = "實作"
+title = "睡前排 5 個情境，起床看結果表"
+context = "跑 5 個 1 弧分真實地形情境，一次一個太慢，全部同時又會把記憶體吃光。要有上限的並行、單一情境失敗不影響其他、結果彙整成一張表。"
+predict = "5 個 real 情境，在你的電腦上總共要跑多久？開 2 個並行比循序快幾倍？"
+spec = "寫 lab/mine/batch.py：run_batch(names, runner, max_workers, out_csv) 以最多 max_workers 個並行執行 runner(name)（回傳 dict，至少有 max_level），結果依輸入順序回傳 list[dict]，欄位 case、status（ok 或 failed）、max_level、seconds、error；失敗的情境 max_level 留空；結果同時寫成 CSV。runner 的例外不能讓整批停下來。"
+check = "lab/checks/test_c20.py"
+hints = [
+  "concurrent.futures.ThreadPoolExecutor(max_workers) 的 map 會保持輸入順序。COMCOT 是外部程序，執行緒就夠，不需要 multiprocessing。",
+  "把『執行一個情境並計時、攔例外』包成一個函式，回傳 dict；例外時 status='failed'、error=str(e)。",
+  "用 csv.DictWriter。失敗列的 max_level 寫空字串，不是 0：0 看起來像一個合理的水位。",
+]
+run = ["python lab/tools/card.py check"]
+win = "寫一個 5 行的 runner（呼叫 run_case.py 並讀 zmax_layer01.dat 的最大值），排 5 個情境睡覺；隔天貼上 CSV"
+milestone = "一個指令、一張結果表"
+
+[[card]]
+id = "21"
+kind = "對決"
+title = "AI 版的 batch.py 對上你的驗收"
+context = "你的卡 06、14、20 都有自動驗收。請一個 AI『不給它看你的測試』，只給它各卡的 spec 文字，要它寫出對應的程式，放到 lab/mine_ai/（別覆蓋你的），再用你的驗收測試去打它。"
+predict = "它會在哪幾個測試失敗？列出你覺得最可能的 3 個地方。"
+run = ["MINE_DIR=lab/mine_ai python lab/tools/card.py check 06", "MINE_DIR=lab/mine_ai python lab/tools/card.py check 14", "MINE_DIR=lab/mine_ai python lab/tools/card.py check 20"]
+win = "docs/ai-falsification-log.md 新增至少 2 筆作者為「我」的紀錄，每筆寫：AI 寫了什麼、哪個測試抓到、為什麼 AI 沒想到"
+milestone = "你的測試成了否證 AI 的工具"

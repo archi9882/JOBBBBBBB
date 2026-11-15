@@ -14,19 +14,23 @@ python lab/tools/card.py done 01 "一句收穫"      # 完成
 原本的流程（先讀程式、再寫說明、再拷問、再補課）每一步都在「準備」，一週下來沒有一個看得到的成果。實驗室反過來：用真正的海嘯模式 COMCOT 跑真實情境，問「如果這樣會怎樣」，需要時才回頭拆解原理。
 
 ## 職缺能力在哪裡練到
+**實作卡**（粗體）是你自己寫程式，寫在 `lab/mine/`，`python lab/tools/card.py check` 自動驗收，沒過就不能 done。
+
 | 卡 | 能力 |
 |---|---|
-| 02、04、10、11 | 物理判斷與數值誤差敏感度（M1） |
-| 06、08 | 空間資料、文獻與資料處理 |
-| 05 等拷問卡 | 回頭拆解專案 A 的求解器 |
-| 12 | 否證 AI 產出（M3） |
-| 13 之後 | 自架平台：批次跑情境（M2） |
+| **06、07、14**、02、04、12、13 | 物理判斷與數值誤差敏感度（M1）：走時、後處理、收斂階、線性對非線性 |
+| **08、10、15**、11 | 空間資料與 ETL：水深格式、TWD97、潮位站清理、文獻 |
+| **17、18** | REST API：202／Location、problem+json、冪等 |
+| **19、20** | 自架平台：容器、批次排程 |
+| 16、**21** | 否證 AI：先預測它的錯，再用你自己的驗收測試抓它 |
+| 05 | 回頭拆解專案 A 的求解器（拷問） |
 
 ## 檔案
 - `cards.toml`：卡片佇列；`progress.json`、`log.md`：進度與日誌（由 card.py 寫入）
 - `cases.py`：情境定義；`runs/`：輸出（不進 git）
 - `tools/setup_comcot.sh`：下載並編譯 COMCOT（gfortran 版，中央大學 IHOS 海嘯研究群，github.com/HandsomeAndy/comcot-gfortran）
 - `tools/comcot_ctl.py`、`run_case.py`、`plot.py`、`synth_bathy.py`：Claude 寫的工具
+- `mine/`：你寫的程式；`checks/`：Claude 寫的驗收測試（不在 CI 的 testpaths，不會因為你還沒做到而失敗）；`data/`：下載的資料（不進 git）
 - `answers.md`：參考答案，做卡前不要看
 
 ## 已知事項（Claude 在 2026-11-15 實測）
