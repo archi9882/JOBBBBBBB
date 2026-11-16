@@ -1,88 +1,136 @@
-# JOBBBBBBB：科學模擬職缺的作品集與訓練場
+# JOBBBBBBB：海嘯實驗室
 
-目標職缺要求三件事串成一條決策鏈：用**物理判斷**設計模擬與驗證，用**自架基礎設施**把它跑起來，用**生成式 AI** 加速並**否證** AI 的產出。這個 repo 用三個專案和一套課程把這條鏈練出來，並把完成的證據自動轉成履歷敘述。
-
-## 主線（2026-11-15 起）：海嘯實驗室
-
-每次只有約 30 分鐘，所以改成**一晚一張卡**：用 COMCOT 跑台灣海嘯情境，先猜、再跑、看圖、寫一句收穫。見 [lab/README.md](lab/README.md)。在 Claude Code 說「下一張卡」即可開始。下面的專案 A、B、C 與課程改為副線，卡片需要時才回頭拆解。
-
-## 舊路線：速成 → 講解 → 拷問 → 從零重建
+用真正的海嘯模式 COMCOT 跑台灣海嘯情境，一晚 30 分鐘、一張卡，練出目標職缺要的三種能力：**數值模擬與物理判斷**、**自架基礎設施**、**否證 AI 的產出**。完成的卡會自動轉成履歷敘述。
 
 ```
-① 速成       專案 A、B（Claude 寫好、能跑、有測試）
-               │
-②a 講解      拷問前先由 Claude 逐元件講解：假設你沒有背景，白話＋小數字例子，
-               │  順序依拆解地圖；講完一段再進拷問。講解不計分
-②b 拷問      grill-me 逐元件追問：做什麼 → 為什麼 → 改了會怎樣 → 不看程式重寫
-               │  分數記在 grill/scores.json；暴露的缺口對應到 reserve-numerics/ 的課程
-               │
-③ 補課       完成對應課程（推導＋程式＋測試＋否證，四項齊全才算出貨）
-               │
-④ 從零重建   專案 C 由你自己寫，由下往上 6 層；條件未滿足的層放程式碼，CI 直接失敗
-               │
-⑤ 履歷       tools/resume_gen.py 依證據解鎖履歷敘述，數字自動帶入
+第一次設定（一次，約 30 分鐘）
+        │
+        ▼
+每晚一張卡（30 分鐘）：先猜 → 再跑 → 看圖 → 一句收穫 → 推上 GitHub
+        │                         ▲
+        └──── 33 張卡依序做 ───────┘
+        │
+        ▼
+里程碑解鎖 → 履歷敘述自動產生
 ```
 
-| 專案 | 誰寫 | 內容 | 狀態 |
-|---|---|---|---|
-| [A 淹水模擬服務](projects/A-flood-service) | Claude | 1D 淺水方程 HLL 有限體積求解器、Stoker／Ritter 驗證、FastAPI 非同步工作、SQLite 佇列、Docker Compose | 17 個測試通過 |
-| [B 雨量 ETL＋空間](projects/B-rain-etl-spatial) | Claude | 多來源雨量 ETL、TWD97、徐昇式多邊形面積雨量、Prometheus 指標、k8s manifest | 26 個測試通過 |
-| [C 地下水污染傳輸服務](projects/C-groundwater-bottomup) | **你** | ADE 求解器 → 反求延散係數 → 監測井 ETL → API → 自架平台 → 架構決策 | 6 層全部鎖定 |
+---
 
-## 常用指令
+## 步驟 1　第一次設定（只做一次）
+
+在 WSL 的 Ubuntu 終端機執行。專案放在 `~/JOB`，不要放在 `/mnt/c`（跨檔案系統會變慢）。
 
 ```bash
-conda env create -f environment.yml && conda activate jobprep
-pytest                                  # 全部測試（目前 62 個）
-python tools/ship_check.py --run        # 儲備課程（13 堂）的出貨狀態
-python tools/gate.py                    # 專案 C 每一層解鎖了沒、還缺什麼
-python tools/resume_gen.py --refresh    # 履歷生產表 → resume/generated/
+# 1. 下載專案
+git clone https://github.com/archi9882/JOBBBBBBB.git ~/JOB
+cd ~/JOB
+
+# 2. 建立 Python 環境
+conda env create -f environment.yml
+conda activate jobprep
+
+# 3. 安裝 Fortran 編譯器並編譯 COMCOT
+sudo apt install gfortran
+bash lab/tools/setup_comcot.sh          # 最後要看到「OK：…/comcot」
+
+# 4. 確認一切正常
+pytest                                   # 全部通過
+python lab/tools/card.py                 # 顯示「0/33 張」與卡 01
 ```
 
-每次開工的步驟（WSL、VS Code、claude）見 [startup.md](startup.md)。
+**完成條件**：上面四步都沒有錯誤。卡住就把錯誤訊息貼給 Claude。
 
-## 目錄
+開啟 VS Code、啟動 Claude Code 的細節見 [startup.md](startup.md)。推送到 GitHub 的方法見 [WSL2GITHUB.md](WSL2GITHUB.md)。
 
-```
-projects/A-flood-service/         速成專案 A（README 有拆解地圖）
-projects/B-rain-etl-spatial/      速成專案 B（README 有拆解地圖）
-projects/C-groundwater-bottomup/  bottom-up 專案 C（gate.toml 定義關卡）
-grill/targets.toml                grill-me 的 14 個拆解目標
-grill/scores.json                 拷問分數（只由 grill-me 寫入）
-grill/log/                        每場拷問的紀錄
-reserve-numerics/                 數值分析儲備課程（13 堂；其餘課程已改成實驗室卡片）
-resume/claims.toml                每條履歷敘述的解鎖條件與模板
-resume/generated/                 自動產生的履歷生產表與敘述
-docs/ai-falsification-log.md      否證紀錄總表（「作者」欄區分你與 Claude）
-tools/                            ship_check、gate、resume_gen、課程產生器
+---
+
+## 步驟 2　每晚一張卡（30 分鐘）
+
+**開工（2 分鐘）**
+
+```bash
+cd ~/JOB && conda activate jobprep && git pull
+claude                                   # 啟動 Claude Code
 ```
 
-## 履歷生產表怎麼運作
+在 Claude Code 說：**「下一張卡」**。
 
-`resume/claims.toml` 的每一條敘述都有解鎖條件，例如：
+**做卡（25 分鐘）**
 
-- **A1-solver**：grill 目標 `A/conservation-form`、`A/hll-flux`、`A/analytic-and-convergence`、`A/wet-dry` 都 ≥ 2 分，且專案 A 測試全過。解鎖後敘述自動帶入 metrics.json 的 L1 誤差與收斂階。
-- **C1-ade**：專案 C 第一層通過。
-- **M3-falsification**：課程 00/04、08/03 出貨，且你自己寫的否證紀錄 ≥ 15 筆。
+| 時間 | 你做什麼 |
+|---|---|
+| 0–5 分 | 讀 3 行背景，**先寫下預測**。還沒預測不准跑。 |
+| 5–25 分 | 跑程式、看圖，和預測對照。實作卡則在 `lab/mine/` 寫自己的程式，用 `python lab/tools/card.py check` 驗收。 |
+| 25–30 分 | 用一句話寫收穫。 |
 
-產出 `resume_table.md`（每條的狀態、還缺什麼、面試會被問什麼）、`resume_table.csv`、`bullets_zh.md`、`bullets_en.md`。CI 每次 push 都會重產，並上傳成 Actions 的 artifact。
+**收工（3 分鐘）**
 
-誠實原則：A、B 是 Claude 寫的，所以只有在你通過拷問後才解鎖，用詞是「建置／驗證」；專案 C 由你從零寫，才用「從零實作」。
+```bash
+python lab/tools/card.py done <卡號> "一句收穫"   # 記錄並顯示進度條
+git add -A && git commit -m "card <卡號>: <題目>" && git push
+```
 
-## 數值分析儲備課程（reserve-numerics/）
+做完一張就停。預測錯了不扣分，錯得有趣的值得記下來。
 
-原本 42 堂課在 2026-11-16 拆成兩部分：數值分析與計算幾何的 13 堂留在 [reserve-numerics/](reserve-numerics/README.md)，之後寫求解器或專案 C 時用；其餘技能改由海嘯實驗室的卡 22–33 練習，原內容與對照表在 [docs/archive/phases/](docs/archive/phases/README.md)。課程形式參考 [AI Engineering from Scratch](https://aiengineeringfromscratch.com/)。
+**卡住時**
+- 實作卡：`python lab/tools/card.py hint 1`（最多到 3）。
+- 超過 30 分鐘：記下停在哪一步，明天從那裡接。
+- 想到流程的改進：寫一行到 `lab/ideas.md`，週末再決定。
 
-已出貨：01/01 連續方程、01/02 收斂階、04/02 多邊形面積。
+---
 
-## 與其他教材的關係
+## 步驟 3　33 張卡的路線
 
-淹水＋PINN 課程（第三冊）與 PINN 相關教材保留，不再是主線。專案 A 的物理內容與第三冊第 1–6 週重疊；專案 C 的 L1、L2 與第二冊第 12–14 章重疊。
+| 階段 | 卡 | 你會得到 | 里程碑 |
+|---|---|---|---|
+| 上手 | 01–05 | 第一張海嘯圖；看懂滑移、時間步、震央定義；第一場拷問 | COMCOT 跑起來 |
+| 物理與資料 | 06–16 | 走時計算、真實台灣地形、TWD97、文獻情境、規模換算、線性對非線性、網格收斂、潮位站清理、第一次否證 AI | 海嘯情境敏感度分析 |
+| 服務 | 17–21 | 自己寫的模擬 API、Docker 映像、睡前批次跑 5 個情境 | 第一支模擬服務 |
+| 自架平台 | 22–28 | 容量估算、k3d 部署、監控指標、故障演練、儲存架構決策紀錄 | 服務跑在 Kubernetes 上 |
+| 混合方法 | 29–31 | 方法選擇、代理模型、外插失效 | 物理模擬加代理模型 |
+| 作品集 | 32–33 | 否證案例集、陌生人能跑的 README、10 分鐘簡報 | 作品集完成 |
+
+完整卡片在 [lab/cards.toml](lab/cards.toml)；實驗室說明見 [lab/README.md](lab/README.md)。
+
+---
+
+## 步驟 4　成果自動變成履歷
+
+```bash
+python tools/resume_gen.py --refresh
+```
+
+產出在 `resume/generated/`：
+- `resume_table.md`：每條履歷敘述的狀態、還缺哪些卡、面試會被問什麼。
+- `bullets_zh.md`、`bullets_en.md`：已解鎖的敘述，可直接貼進履歷。
+
+解鎖條件寫在 [resume/claims.toml](resume/claims.toml)。否證 AI 的紀錄在 [docs/ai-falsification-log.md](docs/ai-falsification-log.md)，履歷只計算作者為「我」的筆數。
+
+---
+
+## 副線（卡片引導到時才做）
+
+| 資料夾 | 內容 | 什麼時候用 |
+|---|---|---|
+| [reserve-numerics/](reserve-numerics/README.md) | 數值分析儲備課程 13 堂：守恆與驗證、淺水方程有限體積、計算幾何 | 想自己寫求解器，或專案 C 需要時 |
+| [projects/A-flood-service](projects/A-flood-service) | 一維潰壩求解器加非同步 API（Claude 寫） | 拷問卡用來拆解求解器原理 |
+| [projects/B-rain-etl-spatial](projects/B-rain-etl-spatial) | 雨量 ETL 與空間處理（Claude 寫） | 目前不用 |
+| [projects/C-groundwater-bottomup](projects/C-groundwater-bottomup) | 地下水污染傳輸，由你從零寫，6 層關卡 | 實驗室做完之後；用 `python tools/gate.py` 看解鎖狀態 |
+| [grill/](grill/README.md) | grill-me 拷問目標與分數 | 拷問卡 |
+| [docs/archive/](docs/archive/phases/README.md) | 已封存的課程與舊待辦（附對照表） | 只供查閱 |
+
+---
+
+## 規則摘要
+
+- `lab/mine/` 是你自己寫的程式，Claude 不寫、不改、不貼解答，只跑驗收、指出哪個測試失敗。
+- `lab/tools/`、`lab/checks/`、`lab/cases.py` 是 Claude 寫的工具和驗收測試。
+- 專案 C 由你從零寫，Claude 只拷問與審查。
+- `lab/progress.json`、`lab/log.md`、`grill/scores.json`、`resume/generated/` 都由工具寫入，不手動改。
+- 給 Claude Code 的完整規則在 [CLAUDE.md](CLAUDE.md)。
 
 ## 前提與限制
 
-- 全部測試只在 Claude 的 Linux 環境跑過，尚未在 WSL2 上執行。
-- Docker 映像未建置（工作區連不到 Docker Hub）；k8s manifest 未部署（環境沒有 k3d）。
-- 專案 A、B 用合成資料；B 的流域與測站座標為虛構。
-- CI 檔未在 GitHub 上實際執行過。
-- 尚未選定授權條款。
+- COMCOT 使用中央大學 IHOS 海嘯研究群的 gfortran 版本（github.com/HandsomeAndy/comcot-gfortran）；gfortran 10 以上需要 `-fallow-argument-mismatch`，`setup_comcot.sh` 已處理。
+- 卡 01–04 在 Claude 的環境實測過；之後的卡與在你的 WSL2 上的執行，以你實跑為準。
+- 卡 08 之後需要下載真實地形與文獻資料，來源要自己核對。
