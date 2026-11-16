@@ -2,7 +2,7 @@
 
 - 01：Claude 環境實跑約 3 秒。到達時間與最高側請以 map.png 與 z_01_*.dat 判讀，Claude 未事先計算。
 - 02：線性方程下最大水位 2.500 → 5.001 m，剛好約 2 倍（線性系統的疊加性）。
-- 03：未查證；請在 deform.f90 與 COMCOT v1.7 手冊找定義。Claude 只觀察到隆起區位在給定座標西側。
+- 03：deform.f90 中，Faulting Option 0 時 Epicenter 是斷層面中心（Focal Depth 為中心深度），9 時是上緣中點。玩具斷層（傾角 20°、往東傾）最大抬升在震央往上傾方向（西）約 37 km，因為逆衝斷層的抬升集中在上緣附近（CFD 頁 16-02 實測）。lab/tools/comcot_ctl.py 設的是 0。
 - 04：不會發散。run.log 顯示「WARNING: CR TOO LARGE, DT ADJUSTED!」，實際時間步 9.88092 s。驗算方向：以網格中最小的經向間距（最北緯度）與最大水深算 √(gh)，看 COMCOT 採用的 Courant 數。最大水位仍為 2.500 m。
 - 05 之後：未事先計算。
 - 22：Claude 環境實測 lab/runs/toy 約 20 MB（38 個檔）；z_01_000000.dat 為 526,826 位元組、241×241＝58,081 個值，每值約 9.07 位元組（文字格式）。
