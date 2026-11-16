@@ -8,7 +8,7 @@
    cd ~/JOB && git status && git pull
    python lab/tools/card.py
    ```
-   `git status` 要是乾淨的；`card.py` 要顯示 `0/21 張` 和卡 01。
+   `git status` 要是乾淨的；`card.py` 要顯示 `0/33 張` 和卡 01。
 2. **裝 COMCOT 需要的東西（約 5 分鐘，只做一次）**
    ```bash
    sudo apt install gfortran
