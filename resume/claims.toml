@@ -23,9 +23,9 @@ interview = "網格要多細才夠？你怎麼知道？什麼情況你不信這�
 [[claim]]
 id = "L-k8s-observability"
 capability = "M2 自架基礎設施"
-requires.cards = ["24", "25", "26", "27"]
-zh = "將海嘯模擬服務部署到 k3d（資源限制、就緒與存活探針、非 root、固定映像版本），以 Prometheus 指標追蹤完成與失敗的工作，並以刪除 Pod 的故障演練檢驗工作狀態的恢復；以自訂驗收測試審查 AI 產生的 manifest。"
-en = "Deployed the tsunami simulation service on k3d (resource limits, readiness/liveness probes, non-root, pinned images), tracked completed and failed jobs with Prometheus metrics, ran pod-kill failure drills on job-state recovery, and reviewed AI-generated manifests against my own acceptance tests."
+requires.cards = ["24", "26", "27"]
+zh = "將海嘯模擬服務部署到 k3d（資源限制、就緒與存活探針、非 root、固定映像版本），以 Prometheus 指標追蹤完成與失敗的工作，並以刪除 Pod 的故障演練檢驗工作狀態的恢復。"
+en = "Deployed the tsunami simulation service on k3d (resource limits, readiness/liveness probes, non-root, pinned images), tracked completed and failed jobs with Prometheus metrics, and ran pod-kill failure drills on job-state recovery."
 interview = "replicas 改成 3 時哪裡會出錯？你會對哪個指標設告警？"
 
 [[claim]]
@@ -72,7 +72,7 @@ interview = "只有一個網格時你怎麼判斷結果可信？"
 [[claim]]
 id = "L-capacity-adr"
 capability = "M2 自架基礎設施"
-requires.cards = ["22", "23", "28"]
+requires.cards = ["23", "28"]
 zh = "依實測輸出量建立模擬平台的容量模型，估算 10 倍負載時最先耗盡的資源，並撰寫結果儲存的架構決策紀錄（含查證日期與推翻條件）。"
 en = "Built a capacity model for the simulation platform from measured output sizes, identified the first resource exhausted at 10x load, and wrote an architecture decision record for result storage with verification dates and reversal conditions."
 interview = "資料量成長 10 倍時哪裡先壞？你的 ADR 在什麼條件下會被推翻？"
@@ -88,8 +88,8 @@ interview = "代理模型什麼時候不能用？你怎麼讓它自己說「我�
 [[claim]]
 id = "L-wave-pinn-falsification"
 capability = "M1 數值模擬與物理判斷"
-requires.cards = ["36", "38", "39", "40", "42", "43"]
+requires.cards = ["36", "38", "39", "40", "42", "43", "45"]
 requires.grill = ["pinn/residual-and-training"]
-zh = "以 PyTorch 自行實作淺水方程物理資訊神經網路（PINN）與傅立葉神經算子（FNO）層，用解析解與有限差分強基準量化頻譜偏差、長時間失準與外插失效，並以相同精度下的計算時間公平比較，結論是 PINN 在反問題（由測站反求水深）有優勢、正問題不及傳統求解器。"
-en = "Implemented shallow-water physics-informed neural networks (PINNs) and a Fourier neural operator layer in PyTorch; quantified spectral bias, long-horizon drift and extrapolation failure against analytic solutions and a finite-difference baseline, compared wall-clock cost at matched accuracy, and showed PINNs pay off for inverse problems (depth from gauges) but not for forward simulation."
-interview = "你怎麼確定你的基準夠強？PINN 什麼時候值得用？FNO 在訓練範圍外失準時，你怎麼讓它自己說「我不知道」？"
+zh = "以 PyTorch 自行實作淺水方程物理資訊神經網路（PINN）與傅立葉神經算子（FNO）層，用解析解與有限差分強基準量化頻譜偏差、長時間失準與外插失效，並以相同精度下的計算時間公平比較，結論是 PINN 在反問題（由測站反求水深、反求底床摩擦係數）有優勢、正問題不及傳統求解器；並以稀疏且含雜訊的測站資料掃描觀測設計，判斷哪些參數在只有水位觀測時仍可辨識。"
+en = "Implemented shallow-water physics-informed neural networks (PINNs) and a Fourier neural operator layer in PyTorch; quantified spectral bias, long-horizon drift and extrapolation failure against analytic solutions and a finite-difference baseline, compared wall-clock cost at matched accuracy, and showed PINNs pay off for inverse problems (depth and bed friction from gauges) but not for forward simulation; swept observation design under sparse, noisy gauge data to establish which parameters stay identifiable from water level alone."
+interview = "你怎麼確定你的基準夠強？PINN 什麼時候值得用？只有水位觀測時，哪些參數反求不出來，為什麼？"

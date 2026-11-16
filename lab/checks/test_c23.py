@@ -5,7 +5,7 @@ import capacity
 
 
 def test_run_bytes_matches_toy_measurement():
-    # 卡 22：241×241、7 個輸出時刻（0–60 分鐘每 10 分鐘）、3 個場、每值約 9.07 位元組
+    # 玩具情境：241×241、7 個輸出時刻（0–60 分鐘每 10 分鐘）、3 個場、每值約 9.07 位元組
     b = capacity.run_bytes(241, 241, 7, n_fields=3, bytes_per_value=9.07)
     assert b == pytest.approx(241 * 241 * 3 * 7 * 9.07)
 

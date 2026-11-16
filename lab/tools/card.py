@@ -1,9 +1,13 @@
 """卡片進度。
 
-    python lab/tools/card.py              # 顯示下一張卡與進度
+    python lab/tools/card.py              # 各軌的下一張卡與進度
+    python lab/tools/card.py PINN         # 指定一軌，看它下一張卡的全文
+    python lab/tools/card.py 35           # 指定卡號，看全文（跳著做用這個）
     python lab/tools/card.py done 01 "一句收穫"   # 完成一張卡（寫入 lab/progress.json 與 lab/log.md）
     python lab/tools/card.py check [卡號]         # 跑實作卡的驗收測試（預設是下一張卡）
     python lab/tools/card.py hint 1|2|3 [卡號]    # 實作卡卡住時，依序看三層提示
+卡片分成幾條平行軌（cards.toml 的 track 欄）；done、check、hint 本來就吃卡號，
+所以要跳著做不必動佇列，直接給卡號即可。
 實作卡的驗收測試沒過，done 不會記錄。MINE_DIR=lab/mine_ai 可改測別的程式目錄（卡 21）。
 """
 import datetime as dt
@@ -43,26 +47,76 @@ def bar(k, n, w=13):
     return "■" * f + "□" * (w - f)
 
 
-def status(p):
+def track_of(c):
+    return c.get("track", "海嘯")
+
+
+def tracks():
+    """依卡片在檔案裡出現的順序列出軌名。"""
+    seen = []
+    for c in CARDS:
+        if track_of(c) not in seen:
+            seen.append(track_of(c))
+    return seen
+
+
+def next_in(track, done):
+    return next((c for c in CARDS if track_of(c) == track and c["id"] not in done), None)
+
+
+def milestone_of(track, done):
+    """回傳 (里程碑文字, 還要幾張)。張數算同一軌裡排在它之前還沒做的卡，所以跳著做也不會算錯。"""
+    k = 0
+    for c in CARDS:
+        if track_of(c) != track or c["id"] in done:
+            continue
+        k += 1
+        if c.get("milestone"):
+            return c["milestone"], k
+    return None, 0
+
+
+def show(card):
+    print(f"\n卡 {card['id']}［{card['kind']}］{card['title']}　（{track_of(card)}）")
+    print(f"背景：{card['context']}")
+    print(f"先預測：{card['predict']}")
+    if card.get("spec"):
+        print(f"要寫的：{card['spec']}")
+        print(f"驗收：python lab/tools/card.py check {card['id']}"
+              f"　｜　卡住：python lab/tools/card.py hint 1 {card['id']}（最多到 3）")
+    if card.get("run"):
+        print("然後執行：\n  " + "\n  ".join(card["run"]))
+    print(f"成果：{card['win']}")
+
+
+def status(p, track=None):
     done = p["done"]
-    nxt = next((c for c in CARDS if c["id"] not in done), None)
     print(f"進度 {bar(len(done), len(CARDS))} {len(done)}/{len(CARDS)} 張　｜　連續 {streak(done)} 晚")
-    upcoming = next((c for c in CARDS if c["id"] not in done and c.get("milestone")), None)
-    if upcoming:
-        k = [c["id"] for c in CARDS].index(upcoming["id"]) + 1 - len(done)
-        print(f"下一個里程碑：{upcoming['milestone']}（再 {k} 張）")
-    if nxt is None:
-        print("佇列做完了。請 Claude 依你最近的收穫補下一批卡。")
-        return
-    print(f"\n下一張　卡 {nxt['id']}［{nxt['kind']}］{nxt['title']}")
-    print(f"背景：{nxt['context']}")
-    print(f"先預測：{nxt['predict']}")
-    if nxt.get("spec"):
-        print(f"要寫的：{nxt['spec']}")
-        print(f"驗收：python lab/tools/card.py check　｜　卡住：python lab/tools/card.py hint 1（最多到 3）")
-    if nxt.get("run"):
-        print("然後執行：\n  " + "\n  ".join(nxt["run"]))
-    print(f"成果：{nxt['win']}")
+    ts = [track] if track else tracks()
+    for t in ts:
+        n = len([c for c in CARDS if track_of(c) == t])
+        d = len([c for c in CARDS if track_of(c) == t and c["id"] in done])
+        nxt = next_in(t, done)
+        head = f"\n{t}　{d}/{n}"
+        if nxt is None:
+            print(head + "　這一軌做完了")
+            continue
+        ms, k = milestone_of(t, done)
+        print(head + f"　下一張：卡 {nxt['id']}［{nxt['kind']}］{nxt['title']}")
+        if ms:
+            print(f"　　里程碑：{ms}（再 {k} 張）")
+    if track:
+        nxt = next_in(track, done)
+        if nxt:
+            show(nxt)
+    elif len(ts) == 1 and next_in(ts[0], done):
+        show(next_in(ts[0], done))
+    else:
+        live = [t for t in ts if next_in(t, done)]
+        if live:
+            print(f"\n看全文：python lab/tools/card.py {live[0]}　（或給卡號）")
+        else:
+            print("\n全部做完了。請 Claude 依你最近的收穫補下一批卡。")
 
 
 def find(cid):
@@ -127,5 +181,11 @@ if __name__ == "__main__":
         sys.exit(0 if run_check(c) else 1)
     elif a and a[0] == "hint" and len(a) >= 2:
         hint(int(a[1]), a[2] if len(a) > 2 else None)
+    elif a and a[0] in tracks():
+        status(load(), a[0])
+    elif a and any(c["id"] == a[0] for c in CARDS):
+        show(next(c for c in CARDS if c["id"] == a[0]))
+    elif a:
+        sys.exit(f"不認得「{a[0]}」。軌名：{'、'.join(tracks())}；或給卡號。")
     else:
         status(load())
