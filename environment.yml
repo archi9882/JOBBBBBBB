@@ -17,3 +17,4 @@ dependencies:
       - uvicorn==0.54.0
       - httpx==0.28.1
       - prometheus-client
+      - pyyaml            # 卡 24 的驗收測試讀 manifest

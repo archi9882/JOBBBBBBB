@@ -4,7 +4,8 @@
     python tools/gate.py          # 列出每層狀態；有違規時結束碼 1（CI 會失敗）
 
 每層的條件（projects/C-groundwater-bottomup/gate.toml）：
-    lessons  對應課程已出貨（tools/ship_check.py 判定，含測試通過）
+    lessons  對應課程已出貨（reserve-numerics/，tools/ship_check.py 判定，含測試通過）
+    cards    對應的實驗室卡已完成（lab/progress.json）
     grill    對應 grill 目標分數 ≥ 2（grill/scores.json）
     below    下一層已通過
 一層「通過」＝ 已解鎖、有 tests/test_*.py 且全過、有 math.md 或 design.md、有 falsification.md。
@@ -27,8 +28,13 @@ GRILL_PASS = 2
 @lru_cache(maxsize=None)
 def shipped(lesson_id):
     p, l = lesson_id.split("/")
-    hits = [d for d in (ROOT / "phases").glob(f"{p}-*/{l}-*") if d.is_dir()]
+    hits = [d for d in (ROOT / "reserve-numerics").glob(f"{p}-*/{l}-*") if d.is_dir()]
     return bool(hits) and lesson_status(hits[0], run=True)[-1]
+
+
+def cards_done():
+    f = ROOT / "lab" / "progress.json"
+    return json.loads(f.read_text(encoding="utf-8"))["done"] if f.exists() else {}
 
 
 def grill_scores():
@@ -52,6 +58,7 @@ def layer_status():
     for L in gate:
         d = C / "layers" / L["id"]
         missing = [f"課程 {x} 未出貨" for x in L.get("lessons", []) if not shipped(x)]
+        missing += [f"實驗室卡 {x} 未完成" for x in L.get("cards", []) if x not in cards_done()]
         missing += [f"grill {g} < {GRILL_PASS}（目前 {scores.get(g, {}).get('score', 0)}）"
                     for g in L.get("grill", []) if scores.get(g, {}).get("score", 0) < GRILL_PASS]
         if L.get("below") and L["below"] not in passed_ids:

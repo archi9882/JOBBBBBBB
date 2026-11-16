@@ -16,7 +16,7 @@
 - `lab/tools/`、`lab/cases.py`、`lab/checks/`：Claude 可以寫（工具與驗收測試）。卡片的預測、判讀與收穫由使用者做。
 - **`lab/mine/`：使用者自己寫的程式（實作卡）。Claude 不寫、不改、不貼解答**，只讀、跑驗收、指出哪個測試失敗；規則細節見 card 技能。
 - **專案 C（`projects/C-groundwater-bottomup/`）**：Claude 不寫程式碼，只拷問、審查、查文件。
-- `phases/` 課程依 `docs/depth-tiers.md` 分級（A 親手做、B Agent 做使用者驗收、C 只讀懂）。目前課程與專案 C 都是副線，卡片引導到時才做。
+- `reserve-numerics/`（數值分析儲備課程）依 `docs/depth-tiers.md` 分級（A 親手做、B Agent 做使用者驗收、C 只讀懂）。儲備課程與專案 C 都是副線，卡片引導到時才做。
 - 專案 A、B：可以修改，改動寫進該專案 `falsification.md` 或 commit 訊息。
 
 ## 不可以做的事

@@ -14,7 +14,7 @@
 ②a 講解      拷問前先由 Claude 逐元件講解：假設你沒有背景，白話＋小數字例子，
                │  順序依拆解地圖；講完一段再進拷問。講解不計分
 ②b 拷問      grill-me 逐元件追問：做什麼 → 為什麼 → 改了會怎樣 → 不看程式重寫
-               │  分數記在 grill/scores.json；暴露的缺口對應到 phases/ 的課程
+               │  分數記在 grill/scores.json；暴露的缺口對應到 reserve-numerics/ 的課程
                │
 ③ 補課       完成對應課程（推導＋程式＋測試＋否證，四項齊全才算出貨）
                │
@@ -34,7 +34,7 @@
 ```bash
 conda env create -f environment.yml && conda activate jobprep
 pytest                                  # 全部測試（目前 62 個）
-python tools/ship_check.py --run        # 42 堂課的出貨狀態
+python tools/ship_check.py --run        # 儲備課程（13 堂）的出貨狀態
 python tools/gate.py                    # 專案 C 每一層解鎖了沒、還缺什麼
 python tools/resume_gen.py --refresh    # 履歷生產表 → resume/generated/
 ```
@@ -50,7 +50,7 @@ projects/C-groundwater-bottomup/  bottom-up 專案 C（gate.toml 定義關卡）
 grill/targets.toml                grill-me 的 14 個拆解目標
 grill/scores.json                 拷問分數（只由 grill-me 寫入）
 grill/log/                        每場拷問的紀錄
-phases/NN-phase/NN-lesson/        42 堂課（問題、推導、程式、測試、否證）
+reserve-numerics/                 數值分析儲備課程（13 堂；其餘課程已改成實驗室卡片）
 resume/claims.toml                每條履歷敘述的解鎖條件與模板
 resume/generated/                 自動產生的履歷生產表與敘述
 docs/ai-falsification-log.md      否證紀錄總表（「作者」欄區分你與 Claude）
@@ -69,11 +69,11 @@ tools/                            ship_check、gate、resume_gen、課程產生�
 
 誠實原則：A、B 是 Claude 寫的，所以只有在你通過拷問後才解鎖，用詞是「建置／驗證」；專案 C 由你從零寫，才用「從零實作」。
 
-## 課程（phases/）
+## 數值分析儲備課程（reserve-numerics/）
 
-課程形式參考 [AI Engineering from Scratch](https://aiengineeringfromscratch.com/)：編號的 phase／lesson、每堂課固定的學習迴圈、「推導、程式、測試都寫完才算出貨」。在這個 repo 裡，課程是**補課清單**：grill-me 暴露的缺口對應到哪堂課，就去完成那堂；專案 C 的每一層也要求對應課程先出貨。完整目錄見 [CATALOG.md](CATALOG.md)。
+原本 42 堂課在 2026-11-16 拆成兩部分：數值分析與計算幾何的 13 堂留在 [reserve-numerics/](reserve-numerics/README.md)，之後寫求解器或專案 C 時用；其餘技能改由海嘯實驗室的卡 22–33 練習，原內容與對照表在 [docs/archive/phases/](docs/archive/phases/README.md)。課程形式參考 [AI Engineering from Scratch](https://aiengineeringfromscratch.com/)。
 
-已出貨的示範課：01/01 連續方程、01/02 收斂階、04/02 多邊形面積、05/02 時區與時雨量。
+已出貨：01/01 連續方程、01/02 收斂階、04/02 多邊形面積。
 
 ## 與其他教材的關係
 

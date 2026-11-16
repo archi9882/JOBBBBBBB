@@ -293,3 +293,143 @@ predict = "它會在哪幾個測試失敗？列出你覺得最可能的 3 個地
 run = ["MINE_DIR=lab/mine_ai python lab/tools/card.py check 06", "MINE_DIR=lab/mine_ai python lab/tools/card.py check 14", "MINE_DIR=lab/mine_ai python lab/tools/card.py check 20"]
 win = "docs/ai-falsification-log.md 新增至少 2 筆作者為「我」的紀錄，每筆寫：AI 寫了什麼、哪個測試抓到、為什麼 AI 沒想到"
 milestone = "你的測試成了否證 AI 的工具"
+
+# ── 2026-11-16 新增：補上原課程 03、07、08、09 中實驗室還沒涵蓋的部分 ──
+
+[[card]]
+id = "22"
+kind = "預測"
+title = "一個情境吃掉多少硬碟"
+context = "自架平台的第一個問題不是 CPU，是儲存。COMCOT 每個輸出時刻寫出水位與兩個方向的流量，而且是文字檔。（原課程 07/06）"
+predict = "玩具情境（241 × 241 格、60 分鐘、每 10 分鐘存一次）整個 runs/toy 目錄大約幾 MB？每個數值平均佔幾個位元組？"
+run = ["du -sh lab/runs/toy", "ls -l lab/runs/toy/z_01_000000.dat"]
+win = "量到的大小、每個數值的位元組數，以及它和你預測差多少"
+milestone = ""
+
+[[card]]
+id = "23"
+kind = "實作"
+title = "容量計算器：10 倍時誰先撐不住"
+context = "職缺原文：「這個架構在資料量成長 10 倍後撐不撐得住」。把卡 22 量到的數字變成可以重算的模型。（原課程 07/06）"
+predict = "如果每天跑 50 個 1 弧分的真實台灣情境，500 GB 的硬碟幾天會滿？成長 10 倍呢？"
+spec = "寫 lab/mine/capacity.py：run_bytes(nx, ny, n_saves, n_fields=3, bytes_per_value=9.07) 回傳一個情境的輸出位元組數（每個輸出時刻有 n_fields 個 nx×ny 的場）；days_until_full(capacity_bytes, daily_bytes) 回傳天數（daily_bytes 為 0 時回傳 math.inf）；first_bottleneck(resources) 接收 {名稱: (容量, 每日用量)}，回傳最先用完的資源名稱，所有資源都不會用完時回傳 None。"
+check = "lab/checks/test_c23.py"
+hints = ["run_bytes 就是乘法：nx × ny × n_fields × n_saves × bytes_per_value。先用卡 22 的玩具情境手算一次對答案。", "days_until_full 是除法，但每日用量為 0 時不能除。", "first_bottleneck：對每個資源算 days_until_full，取最小的；全部都是 inf 時回傳 None。"]
+run = ["python lab/tools/card.py check"]
+win = "一張表：每日 50 個與 500 個情境時，硬碟、記憶體、CPU 時數各在第幾天先撐不住，以及你打算怎麼改"
+milestone = ""
+
+[[card]]
+id = "24"
+kind = "實作"
+title = "海嘯服務上 Kubernetes：寫 manifest"
+context = "把卡 19 的映像放上 k3d（在 Docker 裡跑的輕量 Kubernetes）。重點不是讓它跑起來，而是讓它在出事時可控：資源上限、探針、非 root、固定版本。（原課程 07/02）"
+predict = "如果不設記憶體上限，一個 1 弧分情境把記憶體吃光時，同一台機器上的其他服務會怎樣？"
+spec = "寫 lab/mine/k8s/deployment.yaml（可多份文件）：一個 Deployment 跑卡 19 的 API 映像，容器要有 resources.requests 與 resources.limits（cpu、memory 都要）、readinessProbe 與 livenessProbe、securityContext.runAsNonRoot: true；映像標籤固定（不能是 latest 或沒有標籤）；另外一個 Service 指向它。"
+check = "lab/checks/test_c24.py"
+hints = ["先找 Kubernetes 官方文件的 Deployment 範例，貼進來再一項一項加。", "探針可以打卡 18 之後的健康檢查端點；readiness 決定要不要送流量，liveness 決定要不要重啟。", "k3d 用本機映像：k3d image import <映像> -c <叢集名>。部署：kubectl apply -f lab/mine/k8s/。"]
+run = ["python lab/tools/card.py check", "k3d cluster create tsunami", "kubectl apply -f lab/mine/k8s/", "kubectl get pods -w"]
+win = "kubectl get pods 顯示 Running 且 READY 1/1，並貼上 kubectl describe pod 中的 Limits 與 Readiness"
+milestone = "海嘯服務第一次跑在 Kubernetes 上"
+
+[[card]]
+id = "25"
+kind = "對決"
+title = "AI 寫的 manifest 能過你的驗收嗎"
+context = "請任何一個 AI 直接寫卡 24 的 manifest（只給它需求，不給你的檔案）。存到 lab/mine_ai/k8s/deployment.yaml，用你的驗收測試去測它。（原課程 07/03）"
+predict = "它最可能漏掉哪 3 項？"
+run = ["MINE_DIR=lab/mine_ai python lab/tools/card.py check 24"]
+win = "docs/ai-falsification-log.md 新增至少 1 筆作者為「我」的紀錄，並說明測試沒抓到、但你用眼睛看出來的問題"
+milestone = ""
+
+[[card]]
+id = "26"
+kind = "實作"
+title = "看得到失敗：服務指標"
+context = "只看 CPU 的監控抓不到「工作失敗了」。加上三個指標：完成與失敗的工作數、每個工作花多久、目前在排隊的工作數。（原課程 07/04）"
+predict = "如果只能選一個指標設告警，你選哪一個？門檻設多少？"
+spec = "在 lab/mine/api.py 加 GET /metrics（Prometheus 文字格式，用 prometheus_client）：counter tsunami_runs_total（標籤 status，值為 done 或 failed）、histogram tsunami_run_seconds、gauge tsunami_runs_in_progress。工作完成或失敗時更新。卡 17、18 的驗收必須仍然通過。"
+check = "lab/checks/test_c26.py"
+hints = ["prometheus_client 的 generate_latest() 產生文字，用 Response(content, media_type=CONTENT_TYPE_LATEST) 回傳。", "Counter 要用 .labels(status='done').inc()；Histogram 可以用 .observe(秒數)。", "測試會建立多個 TestClient；指標物件要在模組層級建立一次，不要每個請求建立一次。"]
+run = ["python lab/tools/card.py check", "python lab/tools/card.py check 17", "python lab/tools/card.py check 18"]
+win = "對真的服務送 3 個工作（其中 1 個故意失敗），貼上 /metrics 中三個指標的數值"
+milestone = ""
+
+[[card]]
+id = "27"
+kind = "預測"
+title = "故障演練：跑到一半拔掉"
+context = "在 k3d 上送一個工作，執行中用 kubectl delete pod 刪掉服務。（原課程 07/07）"
+predict = "Pod 重建後，那個工作的狀態會是什麼？呼叫端輪詢會看到什麼？資料會不會遺失？"
+run = ["kubectl delete pod -l app=<你的標籤>", "kubectl get pods -w"]
+win = "一張表：故障、你的預測、實際結果、要怎麼改（例如狀態存到 Pod 外面）"
+milestone = ""
+
+[[card]]
+id = "28"
+kind = "實作"
+title = "架構決策紀錄：模擬結果放哪裡"
+context = "卡 22、23 的輸出要存到某個地方。寫一份架構決策紀錄（ADR）。注意：MinIO 社群版在 2026 年初已封存，選型前要自己查證每個選項的現況。（原課程 07/05、08/02）"
+predict = "你覺得最後會選本機磁碟、自架 S3 相容儲存，還是雲端物件儲存？理由一句話。"
+spec = "寫 lab/mine/adr/0001-result-storage.md，要有這些二級標題：## 背景、## 選項（至少兩個，各用 ### 開頭）、## 決策、## 後果、## 推翻條件；全文至少出現一個 YYYY-MM-DD 格式的查證日期。"
+check = "lab/checks/test_c28.py"
+hints = ["背景寫數字：卡 23 算出的每日用量與 10 倍後的天數。", "每個選項寫：維護現況（附查證日期）、授權、成本、維運負擔。", "推翻條件要具體到可以觀察，例如「每日輸出超過 X GB」或「某專案停止維護」。"]
+run = ["python lab/tools/card.py check"]
+win = "一份 ADR，以及你最可能推翻它的那個條件"
+milestone = ""
+
+[[card]]
+id = "29"
+kind = "預測"
+title = "四種方法，各在什麼時候用"
+context = "估沿岸海嘯高度有四種做法：格林定律（Green's law）這類簡化公式、COMCOT 線性、COMCOT 非線性加摩擦、用模擬結果訓練的代理模型。（原課程 03/01）"
+predict = "這四個情境各選哪一種：(a) 地震後 3 分鐘要發警報；(b) 港口設計要知道溯上範圍；(c) 想排出 1000 個情境的風險地圖；(d) 外海的初步估計。各寫一句理由。"
+run = []
+win = "一張 4×4 表（情境 × 方法），每格寫可用、不可用或有條件，並寫出會推翻判斷的條件"
+milestone = ""
+
+[[card]]
+id = "30"
+kind = "實作"
+title = "代理模型：一秒預測最大水位"
+context = "卡 20 的批次結果就是訓練資料：輸入斷層參數，輸出某個測站的最大水位。代理模型的價值在於快，風險在於訓練範圍以外的情境。（原課程 03/02）"
+predict = "用 30 個情境訓練，保留 20% 當測試，相對誤差大約多少？"
+spec = "寫 lab/mine/surrogate.py：class Surrogate，fit(X, y) 回傳 self；predict(X) 回傳 (y_hat, in_range)，in_range 是布林陣列，任何一個特徵超出訓練資料的最小或最大值時為 False；holdout_error(X, y, frac=0.2, seed=0) 回傳測試集的相對 RMSE（RMSE ÷ 測試集 y 的平均絕對值）。只能用 numpy。"
+check = "lab/checks/test_c30.py"
+hints = ["先試最簡單的：線性最小平方（np.linalg.lstsq），X 前面加一欄 1。", "卡 02 你看到線性方程下水位與滑移量成正比，這是很強的先驗。", "in_range：fit 時記下每個特徵的 min 與 max，predict 時逐列比較。"]
+run = ["python lab/tools/card.py check"]
+win = "用你自己的批次結果訓練一次，貼上測試誤差與一個預測對照 COMCOT 的例子"
+milestone = "解鎖履歷：物理模擬加代理模型的混合方法"
+
+[[card]]
+id = "31"
+kind = "預測"
+title = "代理模型外插：Mw 9.2"
+context = "代理模型在訓練範圍內很準。現在問它訓練範圍以外的情境，再用 COMCOT 跑一次真值。（原課程 03/03）"
+predict = "若訓練資料的規模範圍是 8.0–8.8，問 9.2 時代理模型會高估、低估，還是剛好？差幾成？"
+run = []
+win = "代理模型與 COMCOT 的對照，以及你訂的拒絕門檻：什麼情況下這個代理模型不該被使用"
+milestone = ""
+
+[[card]]
+id = "32"
+kind = "實作"
+title = "否證案例集"
+context = "從 docs/ai-falsification-log.md 挑 5 筆作者為「我」的紀錄，寫成面試可以講的案例。（原課程 08/03）"
+predict = "這 5 筆裡，哪一筆最能說服面試官你會抓 AI 的錯？"
+spec = "寫 docs/falsification-casebook.md：至少 5 個 ### 開頭的案例，每個案例都要有「AI 的說法」「可檢驗的預測」「驗證方法」「結果」四個粗體標籤（**AI 的說法** 等）。"
+check = "lab/checks/test_c32.py"
+hints = ["每個案例控制在 6 行內，面試時 1 分鐘講完。", "「可檢驗的預測」要是數字或可重現的現象，不是感覺。", "至少一個案例是數值錯誤、一個是設定或部署錯誤。"]
+run = ["python lab/tools/card.py check"]
+win = "5 個案例，以及你挑出來當開場的那一個"
+milestone = "解鎖履歷：AI 否證能力"
+
+[[card]]
+id = "33"
+kind = "對決"
+title = "作品集：陌生人 5 分鐘內跑起來"
+context = "請一位沒看過這個 repo 的人（或一個全新的 AI 對話，只給 repo 網址）照 README 操作，計時。（原課程 09/01、09/02）"
+predict = "他會在哪一步卡住？要幾分鐘才看到第一張海嘯圖？"
+run = []
+win = "README 修正一版，並錄一段 10 分鐘簡報：從物理判斷講到平台，再講到否證"
+milestone = "作品集完成"

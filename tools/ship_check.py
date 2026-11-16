@@ -29,7 +29,7 @@ def status(d: Path, run: bool):
 def main():
     run = "--run" in sys.argv
     mark = lambda b: "✓" if b else "·"
-    lessons = sorted(p for p in (ROOT / "phases").glob("*/*") if p.is_dir())
+    lessons = sorted(p for p in (ROOT / "reserve-numerics").glob("*/*") if p.is_dir())
     shipped, failed = 0, False
     print(f"{'課':<46} 推導 程式 測試 否證 {'pytest' if run else ''}")
     for d in lessons:

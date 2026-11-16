@@ -68,12 +68,11 @@ en = "Computed basin-average rainfall with TWD97 projection and Thiessen polygon
 interview = "權重和＝1 抓不到哪些錯？重新正規化在什麼雨型下會偏差很大？"
 
 [[claim]]
-id = "B3-k8s-metrics"
+id = "L-k8s-observability"
 capability = "M2 自架基礎設施"
-requires.grill = ["B/k8s-and-metrics", "B/api"]
-requires.lessons = ["07/02"]
-zh = "撰寫 Kubernetes 部署設定（資源限制、就緒與存活探針、非 root、固定映像版本）並以 Prometheus 指標監控服務，在 k3d 叢集上部署驗證。"
-en = "Wrote Kubernetes manifests (resource limits, readiness/liveness probes, non-root, pinned images), exposed Prometheus metrics, and validated the deployment on a k3d cluster."
+requires.cards = ["24", "25", "26", "27"]
+zh = "將海嘯模擬服務部署到 k3d（資源限制、就緒與存活探針、非 root、固定映像版本），以 Prometheus 指標追蹤完成與失敗的工作，並以刪除 Pod 的故障演練檢驗工作狀態的恢復；以自訂驗收測試審查 AI 產生的 manifest。"
+en = "Deployed the tsunami simulation service on k3d (resource limits, readiness/liveness probes, non-root, pinned images), tracked completed and failed jobs with Prometheus metrics, ran pod-kill failure drills on job-state recovery, and reviewed AI-generated manifests against my own acceptance tests."
 interview = "replicas 改成 3 時哪裡會出錯？你會對哪個指標設告警？"
 
 [[claim]]
@@ -148,3 +147,19 @@ requires.lessons = ["01/01", "01/02", "01/03", "01/04"]
 zh = "建立數值驗證測試套件：守恆、觀測收斂階、製造解（MMS）、靜水平衡，並以持續整合自動執行。"
 en = "Built a numerical verification test suite (conservation, observed order of accuracy, method of manufactured solutions, lake-at-rest) run automatically in CI."
 interview = "只有一個網格時你怎麼判斷結果可信？"
+
+[[claim]]
+id = "L-capacity-adr"
+capability = "M2 自架基礎設施"
+requires.cards = ["22", "23", "28"]
+zh = "依實測輸出量建立模擬平台的容量模型，估算 10 倍負載時最先耗盡的資源，並撰寫結果儲存的架構決策紀錄（含查證日期與推翻條件）。"
+en = "Built a capacity model for the simulation platform from measured output sizes, identified the first resource exhausted at 10x load, and wrote an architecture decision record for result storage with verification dates and reversal conditions."
+interview = "資料量成長 10 倍時哪裡先壞？你的 ADR 在什麼條件下會被推翻？"
+
+[[claim]]
+id = "L-hybrid-surrogate"
+capability = "M1 數值模擬與物理判斷"
+requires.cards = ["29", "30", "31"]
+zh = "以 COMCOT 批次模擬結果訓練海嘯最大水位代理模型，評估測試集誤差與外插失效，並界定物理模式、簡化公式與代理模型各自的適用情境。"
+en = "Trained a surrogate for tsunami maximum water level from batched COMCOT runs, evaluated hold-out error and extrapolation failure, and defined when to use the physics model, simplified formulas or the surrogate."
+interview = "代理模型什麼時候不能用？你怎麼讓它自己說「我不知道」？"
