@@ -1,7 +1,7 @@
-"""卡 37、38：用你在卡 36 寫的 train() 做實驗，量 PINN 的誤差怎麼隨時間長大。
+"""卡 36、38：用你寫的 train() 做實驗，量 PINN 的誤差怎麼隨時間長大。
 
     python lab/tools/pinn_run.py                         # 預設 w=0.3、T=1
-    python lab/tools/pinn_run.py --w 0.05 --T 1.5        # 窄波、時間拉長（卡 37）
+    python lab/tools/pinn_run.py --w 0.05 --T 1.5        # 窄波、時間拉長（卡 36 後半）
     python lab/tools/pinn_run.py --w 0.05 --T 1.5 --causal-eps 1   # 加因果權重（卡 38）
 
 對照的真值是 lab/tools/wave1d_ref.py 的解析解。輸出：lab/runs/pinn/<標籤>.png 與誤差表。

@@ -9,22 +9,11 @@ id = "01"
 kind = "預測"
 title = "第一個海嘯"
 track = "海嘯"
-context = "COMCOT 解球面座標的淺水方程。玩具情境：馬尼拉海溝附近一個 200 km × 80 km 的逆衝斷層，滑移 5 m，合成地形，東北方有一座方形的島。"
-predict = "波從震源（119.5E, 20N）傳到島的西南角（121E, 22N）大約要幾分鐘？島的哪一側水位最高？"
-run = ["bash lab/tools/setup_comcot.sh", "python lab/tools/run_case.py toy"]
-win = "lab/runs/toy/map.png：你的第一張海嘯圖"
+context = "COMCOT 解球面座標的淺水方程。玩具情境：馬尼拉海溝附近一個 200 km × 80 km 的逆衝斷層，滑移 5 m，合成地形，東北方有一座方形的島。跑完原情境再跑 toy_slip10（只把滑移量改成 10 m，其他不變，仍是線性方程）。（併入原卡 02）"
+predict = "波從震源（119.5E, 20N）傳到島的西南角（121E, 22N）大約要幾分鐘？島的哪一側水位最高？再猜：滑移量加倍後最大水位會變成幾倍——剛好 2 倍、多於 2 倍，還是少於 2 倍？理由是什麼？"
+run = ["bash lab/tools/setup_comcot.sh", "python lab/tools/run_case.py toy", "python lab/tools/run_case.py toy_slip10"]
+win = "lab/runs/toy/map.png：你的第一張海嘯圖；再加兩張圖並排與一句「為什麼是這個倍數」"
 milestone = "COMCOT 在你的電腦上跑起來"
-
-[[card]]
-id = "02"
-kind = "預測"
-title = "滑移量加倍"
-track = "海嘯"
-context = "情境 toy_slip10 只把滑移量從 5 m 改成 10 m，其他不變。目前用的是線性淺水方程。"
-predict = "最大水位會變成原本的幾倍？剛好 2 倍、多於 2 倍，還是少於 2 倍？理由是什麼？"
-run = ["python lab/tools/run_case.py toy_slip10"]
-win = "兩張圖並排，以及一句「為什麼是這個倍數」"
-milestone = ""
 
 [[card]]
 id = "03"
@@ -38,26 +27,15 @@ win = "一句話：這個座標的定義，以及設定真實情境時要注意�
 milestone = ""
 
 [[card]]
-id = "04"
-kind = "預測"
-title = "時間步放大 10 倍"
-track = "海嘯"
-context = "情境 toy_dt30 把時間步從 3 秒改成 30 秒。CFL 條件：Δt ≤ Cr·Δx / √(gh)。"
-predict = "模擬會發散、變不準，還是沒事？如果沒事，為什麼？"
-run = ["python lab/tools/run_case.py toy_dt30", "grep -i -A2 'time step' lab/runs/toy_dt30/run.log | head"]
-win = "用 CFL 自己算出 COMCOT 實際用的時間步，誤差在 1% 以內"
-milestone = "第一次親手驗算模式內部的數值"
-
-[[card]]
 id = "05"
 kind = "拷問"
 title = "grill me comcot/cfl-and-boundaries"
 track = "海嘯"
-context = "你剛在卡 04 看到 COMCOT 自動調整時間步。現在拷問 COMCOT 原始碼裡的 CR_CHECK 與開放邊界怎麼寫。"
-predict = "不需要預測；直接說「grill me comcot/cfl-and-boundaries」。"
-run = []
-win = "第一個拷問分數入帳"
-milestone = "grill 分數第一筆"
+context = "先看 COMCOT 怎麼自動調整時間步：情境 toy_dt30 把時間步從 3 秒改成 30 秒，CFL 條件是 Δt ≤ Cr·Δx / √(gh)。跑完再拷問 COMCOT 原始碼裡的 CR_CHECK 與開放邊界怎麼寫。（併入原卡 04）"
+predict = "toy_dt30 會發散、變不準，還是沒事？如果沒事，為什麼？再用 CFL 自己算出 COMCOT 實際會用的時間步。算完再說「grill me comcot/cfl-and-boundaries」。"
+run = ["python lab/tools/run_case.py toy_dt30", "grep -i -A2 'time step' lab/runs/toy_dt30/run.log | head"]
+win = "你算的時間步和 COMCOT 實際用的差在 1% 以內，以及第一個拷問分數入帳"
+milestone = "grill 分數第一筆，以及第一次親手驗算模式內部的數值"
 
 # 實作卡的欄位：spec（要寫什麼、寫在哪）、check（驗收測試；全過才能 card.py done）、
 #              hints（三層提示，卡住才依序看：python lab/tools/card.py hint 1|2|3）。程式寫在 lab/mine/。
@@ -103,8 +81,8 @@ id = "08"
 kind = "實作"
 title = "真實台灣地形：ETOPO 轉成 COMCOT 格式"
 track = "海嘯"
-context = "把合成地形換成真實地形。到 NOAA NCEI 的 ETOPO 2022 頁面下載 60 弧秒（1 弧分）版本，檔名、網址與格式請自行核對官方頁面。裁出 116–124°E、16–26°N，轉成『經度 緯度 高程』文字檔。海是負的、陸是正的。"
-predict = "116–124E、16–26N、1 弧分的 xyz 檔大約幾 MB？有幾行？"
+context = "把合成地形換成真實地形。到 NOAA NCEI 的 ETOPO 2022 頁面下載 60 弧秒（1 弧分）版本，檔名、網址與格式請自行核對官方頁面。裁出 116–124°E、16–26°N，轉成『經度 緯度 高程』文字檔。海是負的、陸是正的。轉好之後直接在真實地形上跑卡 01 的斷層（real 情境，定義在 lab/cases.py）。（併入原卡 09）"
+predict = "116–124E、16–26N、1 弧分的 xyz 檔大約幾 MB？有幾行？再猜：換到真實地形後，台灣沿岸哪一段最大水位最高——恆春半島、台南，還是高雄？為什麼？"
 spec = "寫 lab/mine/etopo_to_xyz.py：crop_to_xyz(lon, lat, z, bbox) 回傳 (N,3) 陣列，bbox=(x0,x1,y0,y1) 含邊界，緯度由小到大、同緯度內經度由小到大；範圍內有 NaN、或裁完是空的要 raise ValueError；write_xyz(path, xyz) 輸出 '經度.5f 緯度.5f 高程.1f'。另外寫一個 main（或在終端機用 python -c）讀你下載的檔案，輸出 lab/data/taiwan_1min.xyz。"
 check = "lab/checks/test_c08.py"
 hints = [
@@ -112,20 +90,9 @@ hints = [
   "meshgrid(lon[mi], lat[mj]) 的 ravel 順序剛好是『緯度外圈、經度內圈』。讀 NetCDF 用 xarray 或 netCDF4（先查檔案裡的變數名稱，不要猜）。",
   "核對：左下角格點是 (116, 16)；檔案行數 = 經度格數 × 緯度格數；海洋的高程應為負數。把 xyz 畫成圖，台灣要在東邊。",
 ]
-run = ["python lab/tools/card.py check"]
-win = "lab/data/taiwan_1min.xyz，以及一張你自己用它畫的地形圖（台灣在正確的位置）"
+run = ["python lab/tools/card.py check 08", "python lab/tools/run_case.py real"]
+win = "lab/data/taiwan_1min.xyz、一張你自己畫的地形圖（台灣在正確的位置），以及真實台灣的最大水位圖：用卡 07 的 shoreline_max 找出最高的海岸格，說出它在哪個縣市"
 milestone = "從玩具地形換成真實台灣"
-
-[[card]]
-id = "09"
-kind = "預測"
-title = "真實地形上的玩具斷層"
-track = "海嘯"
-context = "卡 01 的斷層不變，改用 `real` 情境（lab/cases.py，用你卡 08 產生的地形）。"
-predict = "台灣沿岸哪一段最大水位最高？恆春半島、台南、還是高雄？為什麼？"
-run = ["python lab/tools/run_case.py real"]
-win = "真實台灣的最大水位圖；用卡 07 的 shoreline_max 找出最高的海岸格，並說出它在哪個縣市"
-milestone = ""
 
 [[card]]
 id = "10"
@@ -161,8 +128,8 @@ id = "12"
 kind = "實作"
 title = "規模換成滑移量：Mw 8.5 對 9.0"
 track = "海嘯"
-context = "地震矩 M0 = μ·A·D（剛性 × 斷層面積 × 滑移量），Mw = (2/3)(log10 M0 − 9.1)，M0 單位 N·m。用卡 11 的斷層面積，把規模換成 COMCOT 要的滑移量。"
-predict = "同一個斷層面積，Mw 9.0 的滑移量是 8.5 的幾倍？恆春附近的最大水位會是幾倍？"
+context = "地震矩 M0 = μ·A·D（剛性 × 斷層面積 × 滑移量），Mw = (2/3)(log10 M0 − 9.1)，M0 單位 N·m。用卡 11 的斷層面積，把規模換成 COMCOT 要的滑移量。跑完兩個規模，再開非線性加摩擦跑一次（comcot_ctl.py 的 nonlinear、manning 參數）。（併入原卡 13）"
+predict = "同一個斷層面積，Mw 9.0 的滑移量是 8.5 的幾倍？恆春附近的最大水位會是幾倍？再猜：改成非線性加摩擦之後，近岸最大水位變高還是變低？卡 01 看到的倍數關係還成立嗎？"
 spec = "寫 lab/mine/moment.py：moment_from_mw(mw)、mw_from_moment(m0)、slip_for_mw(mw, length, width, mu=3e10)（長寬單位公尺，回傳公尺）；長寬相乘小於 1e8 m² 要 raise ValueError（多半是把公里當公尺）。"
 check = "lab/checks/test_c12.py"
 hints = [
@@ -171,18 +138,7 @@ hints = [
   "規模差 0.5，M0 差 10^0.75 ≈ 5.6 倍；同面積下滑移量同比例。",
 ]
 run = ["python lab/tools/card.py check", "python lab/tools/run_case.py real_mw85", "python lab/tools/run_case.py real_mw90"]
-win = "用你的函式算兩個規模的滑移量、加進 lab/cases.py（real_mw85、real_mw90），跑完比較恆春外海最大水位的倍數，和預測比"
-milestone = ""
-
-[[card]]
-id = "13"
-kind = "預測"
-title = "線性對非線性"
-track = "海嘯"
-context = "COMCOT 可在近岸改用非線性方程並加摩擦（comcot_ctl.py 的 nonlinear、manning 參數）。卡 02 的「剛好 2 倍」在非線性下還成立嗎？"
-predict = "非線性加摩擦後，近岸最大水位變高還是變低？倍數關係會怎樣？"
-run = []
-win = "線性、非線性的差異圖，以及滑移量加倍的倍數"
+win = "用你的函式算兩個規模的滑移量、加進 lab/cases.py（real_mw85、real_mw90），跑完比較恆春外海最大水位的倍數，和預測比；再加一個非線性加摩擦的情境，貼上線性與非線性的差異圖"
 milestone = ""
 
 [[card]]
@@ -350,24 +306,13 @@ id = "26"
 kind = "實作"
 title = "看得到失敗：服務指標"
 track = "海嘯"
-context = "只看 CPU 的監控抓不到「工作失敗了」。加上三個指標：完成與失敗的工作數、每個工作花多久、目前在排隊的工作數。（原課程 07/04）"
-predict = "如果只能選一個指標設告警，你選哪一個？門檻設多少？"
+context = "只看 CPU 的監控抓不到「工作失敗了」。加上三個指標：完成與失敗的工作數、每個工作花多久、目前在排隊的工作數。指標做好之後，在 k3d 上送一個工作，執行中用 kubectl delete pod 刪掉服務，看指標與工作狀態怎麼變。（原課程 07/04、07/07；併入原卡 27）"
+predict = "如果只能選一個指標設告警，你選哪一個？門檻設多少？再猜：Pod 被刪掉重建後，那個工作的狀態會是什麼？呼叫端輪詢會看到什麼？資料會不會遺失？"
 spec = "在 lab/mine/api.py 加 GET /metrics（Prometheus 文字格式，用 prometheus_client）：counter tsunami_runs_total（標籤 status，值為 done 或 failed）、histogram tsunami_run_seconds、gauge tsunami_runs_in_progress。工作完成或失敗時更新。卡 17、18 的驗收必須仍然通過。"
 check = "lab/checks/test_c26.py"
 hints = ["prometheus_client 的 generate_latest() 產生文字，用 Response(content, media_type=CONTENT_TYPE_LATEST) 回傳。", "Counter 要用 .labels(status='done').inc()；Histogram 可以用 .observe(秒數)。", "測試會建立多個 TestClient；指標物件要在模組層級建立一次，不要每個請求建立一次。"]
-run = ["python lab/tools/card.py check", "python lab/tools/card.py check 17", "python lab/tools/card.py check 18"]
-win = "對真的服務送 3 個工作（其中 1 個故意失敗），貼上 /metrics 中三個指標的數值"
-milestone = ""
-
-[[card]]
-id = "27"
-kind = "預測"
-title = "故障演練：跑到一半拔掉"
-track = "海嘯"
-context = "在 k3d 上送一個工作，執行中用 kubectl delete pod 刪掉服務。（原課程 07/07）"
-predict = "Pod 重建後，那個工作的狀態會是什麼？呼叫端輪詢會看到什麼？資料會不會遺失？"
-run = ["kubectl delete pod -l app=<你的標籤>", "kubectl get pods -w"]
-win = "一張表：故障、你的預測、實際結果、要怎麼改（例如狀態存到 Pod 外面）"
+run = ["python lab/tools/card.py check 26", "python lab/tools/card.py check 17", "python lab/tools/card.py check 18", "kubectl delete pod -l app=<你的標籤>", "kubectl get pods -w"]
+win = "對真的服務送 3 個工作（其中 1 個故意失敗），貼上 /metrics 中三個指標的數值；再加一張表：故障、你的預測、實際結果、要怎麼改（例如狀態存到 Pod 外面）"
 milestone = ""
 
 [[card]]
@@ -375,24 +320,13 @@ id = "28"
 kind = "實作"
 title = "架構決策紀錄：模擬結果放哪裡"
 track = "海嘯"
-context = "卡 23 的輸出要存到某個地方。寫一份架構決策紀錄（ADR）。注意：MinIO 社群版在 2026 年初已封存，選型前要自己查證每個選項的現況。（原課程 07/05、08/02）"
-predict = "你覺得最後會選本機磁碟、自架 S3 相容儲存，還是雲端物件儲存？理由一句話。"
+context = "卡 23 的輸出要存到某個地方。寫 ADR 之前先把方法的適用範圍想清楚：估沿岸海嘯高度有四種做法——格林定律（Green's law）這類簡化公式、COMCOT 線性、COMCOT 非線性加摩擦、用模擬結果訓練的代理模型。注意：MinIO 社群版在 2026 年初已封存，選型前要自己查證每個選項的現況。（原課程 03/01、07/05、08/02；併入原卡 29）"
+predict = "先答四個情境各選哪一種方法：(a) 地震後 3 分鐘要發警報；(b) 港口設計要知道溯上範圍；(c) 想排出 1000 個情境的風險地圖；(d) 外海的初步估計。各寫一句理由。再猜：儲存你最後會選本機磁碟、自架 S3 相容儲存，還是雲端物件儲存？"
 spec = "寫 lab/mine/adr/0001-result-storage.md，要有這些二級標題：## 背景、## 選項（至少兩個，各用 ### 開頭）、## 決策、## 後果、## 推翻條件；全文至少出現一個 YYYY-MM-DD 格式的查證日期。"
 check = "lab/checks/test_c28.py"
 hints = ["背景寫數字：卡 23 算出的每日用量與 10 倍後的天數。", "每個選項寫：維護現況（附查證日期）、授權、成本、維運負擔。", "推翻條件要具體到可以觀察，例如「每日輸出超過 X GB」或「某專案停止維護」。"]
 run = ["python lab/tools/card.py check"]
-win = "一份 ADR，以及你最可能推翻它的那個條件"
-milestone = ""
-
-[[card]]
-id = "29"
-kind = "預測"
-title = "四種方法，各在什麼時候用"
-track = "海嘯"
-context = "估沿岸海嘯高度有四種做法：格林定律（Green's law）這類簡化公式、COMCOT 線性、COMCOT 非線性加摩擦、用模擬結果訓練的代理模型。（原課程 03/01）"
-predict = "這四個情境各選哪一種：(a) 地震後 3 分鐘要發警報；(b) 港口設計要知道溯上範圍；(c) 想排出 1000 個情境的風險地圖；(d) 外海的初步估計。各寫一句理由。"
-run = []
-win = "一張 4×4 表（情境 × 方法），每格寫可用、不可用或有條件，並寫出會推翻判斷的條件"
+win = "一張 4×4 表（情境 × 方法），每格寫可用、不可用或有條件；一份 ADR，以及你最可能推翻它的那個條件"
 milestone = ""
 
 [[card]]
@@ -400,32 +334,14 @@ id = "30"
 kind = "實作"
 title = "代理模型：一秒預測最大水位"
 track = "海嘯"
-context = "卡 20 的批次結果就是訓練資料：輸入斷層參數，輸出某個測站的最大水位。代理模型的價值在於快，風險在於訓練範圍以外的情境。（原課程 03/02）"
-predict = "用 30 個情境訓練，保留 20% 當測試，相對誤差大約多少？"
+context = "卡 20 的批次結果就是訓練資料：輸入斷層參數，輸出某個測站的最大水位。代理模型的價值在於快，風險在於訓練範圍以外的情境——所以訓練完立刻問它範圍外的 Mw 9.2，再用 COMCOT 跑真值對照。（原課程 03/02、03/03；併入原卡 31）"
+predict = "用 30 個情境訓練，保留 20% 當測試，相對誤差大約多少？再猜：若訓練資料的規模範圍是 8.0–8.8，問 9.2 時代理模型會高估、低估，還是剛好？差幾成？"
 spec = "寫 lab/mine/surrogate.py：class Surrogate，fit(X, y) 回傳 self；predict(X) 回傳 (y_hat, in_range)，in_range 是布林陣列，任何一個特徵超出訓練資料的最小或最大值時為 False；holdout_error(X, y, frac=0.2, seed=0) 回傳測試集的相對 RMSE（RMSE ÷ 測試集 y 的平均絕對值）。只能用 numpy。"
 check = "lab/checks/test_c30.py"
-hints = ["先試最簡單的：線性最小平方（np.linalg.lstsq），X 前面加一欄 1。", "卡 02 你看到線性方程下水位與滑移量成正比，這是很強的先驗。", "in_range：fit 時記下每個特徵的 min 與 max，predict 時逐列比較。"]
+hints = ["先試最簡單的：線性最小平方（np.linalg.lstsq），X 前面加一欄 1。", "卡 01 你看到線性方程下水位與滑移量成正比，這是很強的先驗。", "in_range：fit 時記下每個特徵的 min 與 max，predict 時逐列比較。"]
 run = ["python lab/tools/card.py check"]
-win = "用你自己的批次結果訓練一次，貼上測試誤差與一個預測對照 COMCOT 的例子"
+win = "用你自己的批次結果訓練一次，貼上測試誤差與一個預測對照 COMCOT 的例子；再加 Mw 9.2 的代理模型與 COMCOT 對照，以及你訂的拒絕門檻：什麼情況下這個代理模型不該被使用"
 milestone = "解鎖履歷：物理模擬加代理模型的混合方法"
-
-[[card]]
-id = "31"
-kind = "預測"
-title = "代理模型外插：Mw 9.2"
-track = "海嘯"
-context = "代理模型在訓練範圍內很準。現在問它訓練範圍以外的情境，再用 COMCOT 跑一次真值。（原課程 03/03）"
-predict = "若訓練資料的規模範圍是 8.0–8.8，問 9.2 時代理模型會高估、低估，還是剛好？差幾成？"
-run = []
-win = "代理模型與 COMCOT 的對照，以及你訂的拒絕門檻：什麼情況下這個代理模型不該被使用"
-milestone = ""
-
-# ── 波動 × PINN（卡 34–43）──────────────────────────────────────────
-# 主題：物理資訊神經網路（PINN）與傅立葉神經算子（FNO）在波動問題上能做什麼、不能做什麼。
-# 問題全部是無因次的一維線性淺水方程 η_t + h u_x = 0、u_t + g η_x = 0（g = h = 1，波速 1），
-# 真值用 lab/tools/wave1d_ref.py 的解析解，強基準用同檔的跳蛙法（和 COMCOT 同一類）。
-# 需要 PyTorch（CPU 版就夠）：pip install torch --index-url https://download.pytorch.org/whl/cpu
-# 背景整理：https://claude.ai/artifact/7qGgMBqj12YZEuBy8pA3ww
 
 [[card]]
 id = "34"
@@ -461,8 +377,8 @@ id = "36"
 kind = "實作"
 title = "訓練你的第一個 PINN"
 track = "PINN"
-context = "初始條件：η0 = exp(-(x/w)²)、u0 = 0，w = 0.3，x ∈ [-2, 2]，t ∈ [0, T]。解析解是兩個各一半高的波往左右走，t=1 時在 x = ±1。損失 = 殘差的平方平均 + λ·（初始條件誤差的平方平均）。"
-predict = "用 Adam 訓練 3000 步，t=1 的相對 L2 誤差大概多少：0.5%、2%、10% 還是 30%？訓練要幾秒？"
+context = "初始條件：η0 = exp(-(x/w)²)、u0 = 0，w = 0.3，x ∈ [-2, 2]，t ∈ [0, T]。解析解是兩個各一半高的波往左右走，t=1 時在 x = ±1。損失 = 殘差的平方平均 + λ·（初始條件誤差的平方平均）。訓練完再把波變窄、時間拉長跑一次：神經網路先學會低頻、很晚才學會高頻（頻譜偏差，spectral bias；Wang, Yu & Perdikaris, J. Comput. Phys. 2022），而窄的波含有更多高頻。（併入原卡 37）"
+predict = "用 Adam 訓練 3000 步，t=1 的相對 L2 誤差大概多少：0.5%、2%、10% 還是 30%？訓練要幾秒？再猜：同樣 3000 步，把 w 從 0.3 縮到 0.05、時間從 1 拉到 1.5，t=1.5 的誤差是前者的幾倍？誤差是一開始就大，還是隨時間越來越大？"
 spec = "在 lab/mine/pinn_swe.py 加 train(steps=3000, width=32, depth=3, w=0.3, T=1.0, n_col=2000, n_ic=200, lr=1e-3, seed=0, causal_eps=None) 回傳 (net, hist)，hist 是每一步損失（float）的 list。每步在 [0,T]×[-2,2] 隨機取 n_col 個配置點算殘差；初始條件在 t=0 取 n_ic 個點。causal_eps 先不用實作（卡 38 才用），但要接受這個參數。"
 check = "lab/checks/test_c36.py"
 hints = [
@@ -470,20 +386,9 @@ hints = [
   "初始條件的兩項都要罰：(η(0,x) - η0)² 和 u(0,x)²。殘差項和初始條件項量級差很多時，給初始條件一個權重（例如 10）。",
   "迴圈：t = torch.rand(n_col,1)*T；x = torch.rand(n_col,1)*4-2；rm, rp = residual(net, t, x)；loss = (rm²+rp²).mean() + 10·IC 損失；opt.zero_grad()；loss.backward()；opt.step()；hist.append(loss.item())。",
 ]
-run = ["python lab/tools/card.py check", "python lab/tools/pinn_run.py"]
-win = "lab/runs/pinn/w0.3_T1.0.png：你的 PINN 和解析解疊在一起，以及誤差隨時間的變化"
+run = ["python lab/tools/card.py check 36", "python lab/tools/pinn_run.py", "python lab/tools/pinn_run.py --w 0.05 --T 1.5"]
+win = "lab/runs/pinn/ 兩張圖並排：你的 PINN 和解析解疊在一起、誤差隨時間的變化；說出窄波失準的樣子（振幅被抹平？位置跑掉？），並對照跳蛙法要多少格才能解析 w=0.05（每個波寬至少幾格？）"
 milestone = "第一個你自己訓練的 PINN"
-
-[[card]]
-id = "37"
-kind = "預測"
-title = "窄波與長時間：頻譜偏差"
-track = "PINN"
-context = "神經網路先學會低頻、很晚才學會高頻（頻譜偏差，spectral bias；Wang, Yu & Perdikaris, J. Comput. Phys. 2022）。窄的波含有更多高頻。同樣 3000 步，把 w 從 0.3 縮到 0.05，時間從 1 拉到 1.5。"
-predict = "w=0.05、T=1.5 時，t=1.5 的誤差是 w=0.3、T=1 的幾倍？誤差是一開始就大，還是隨時間越來越大？"
-run = ["python lab/tools/pinn_run.py --w 0.3 --T 1", "python lab/tools/pinn_run.py --w 0.05 --T 1.5"]
-win = "兩張 lab/runs/pinn/*.png 並排：說出窄波失準的樣子（振幅被抹平？位置跑掉？），並對照跳蛙法要多少格才能解析 w=0.05（每個波寬至少幾格？）"
-milestone = ""
 
 [[card]]
 id = "38"
@@ -491,7 +396,7 @@ kind = "實作"
 title = "因果權重：先學好前面再學後面"
 track = "PINN"
 context = "一般 PINN 同時最小化所有時間的殘差，模型可能先去配 t 很大的地方，違反「後面由前面決定」的因果。Wang, Sankaran & Perdikaris（CMAME 421, 2024）把時間切成 M 段，第 i 段的權重 w_i = exp(-ε·Σ_{k<i} L_k)，前面沒學好，後面的權重就很小。"
-predict = "對卡 37 那個難的情況（w=0.05、T=1.5），加 ε=1 的因果權重，t=1.5 的誤差會改善多少：沒差、少一成、少一半，還是降一個數量級？"
+predict = "對卡 36 那個難的情況（w=0.05、T=1.5），加 ε=1 的因果權重，t=1.5 的誤差會改善多少：沒差、少一成、少一半，還是降一個數量級？"
 spec = "在 lab/mine/pinn_swe.py 加 causal_weights(chunk_losses, eps) 回傳權重 tensor（第一個是 1，不帶梯度）；並讓 train(causal_eps=ε) 在 ε 不是 None 時，把配置點依時間分成 16 段，殘差損失改成 mean(w_i · L_i)。"
 check = "lab/checks/test_c38.py"
 hints = [
@@ -537,8 +442,8 @@ id = "41"
 kind = "實作"
 title = "傅立葉神經算子的核心層"
 track = "PINN"
-context = "PINN 每換一個初始條件就要重訓。神經算子（Li 等，ICLR 2021）學的是「輸入函數 → 輸出函數」的映射，訓練一次可以用在很多情境。FNO 的核心層：對輸入做 FFT，只保留前 m 個模態，乘上學來的複數權重，再反 FFT。"
-predict = "只保留前 16 個傅立葉模態的層，對一個寬度 w=0.06 的窄高斯，會損失多少細節？（提示：區間長 4，第 16 個模態的波長是多少？）"
+context = "PINN 每換一個初始條件就要重訓。神經算子（Li 等，ICLR 2021）學的是「輸入函數 → 輸出函數」的映射，訓練一次可以用在很多情境。FNO 的核心層：對輸入做 FFT，只保留前 m 個模態，乘上學來的複數權重，再反 FFT。寫完這一層，工具會用它組成 4 層 FNO 學「初始水位 → t=1 的水位」，訓練資料是 200 組寬度 w∈[0.2, 0.4] 的高斯，再測範圍內（同分布）與範圍外（w∈[0.06, 0.12]）。這就是卡 30 代理模型外插問題的神經算子版。（併入原卡 42）"
+predict = "只保留前 16 個傅立葉模態的層，對一個寬度 w=0.06 的窄高斯，會損失多少細節？（提示：區間長 4，第 16 個模態的波長是多少？）再猜：FNO 代理在範圍內和範圍外的誤差中位數各多少？把模態數從 16 加到 48，範圍外會變好嗎？"
 spec = "寫 lab/mine/fno.py：class SpectralConv1d(torch.nn.Module)，SpectralConv1d(in_ch, out_ch, modes)，屬性 self.weight 是形狀 (in_ch, out_ch, modes) 的複數 nn.Parameter；forward(x) 輸入 (B, in_ch, N) 實數，輸出 (B, out_ch, N) 實數。"
 check = "lab/checks/test_c41.py"
 hints = [
@@ -546,19 +451,8 @@ hints = [
   "通道混合：Y[:, :, :m] = torch.einsum(\"bim,iom->bom\", X[:, :, :m], self.weight)；其餘模態補 0。",
   "初始化權重給小一點：(1/(in_ch·out_ch)) · torch.randn(in_ch, out_ch, modes, dtype=torch.cfloat)。",
 ]
-run = ["python lab/tools/card.py check"]
-win = "6 個驗收測試全過；用一句話說明為什麼 test_resolution_invariance 會成立"
-milestone = ""
-
-[[card]]
-id = "42"
-kind = "預測"
-title = "FNO 代理模型：訓練範圍內與範圍外"
-track = "PINN"
-context = "工具用你的 SpectralConv1d 組成 4 層 FNO，學「初始水位 → t=1 的水位」。訓練資料是 200 組高斯，寬度 w∈[0.2, 0.4]。測兩組：範圍內（同分布）和範圍外（w∈[0.06, 0.12]，更窄）。這就是卡 30–31 代理模型外插問題的神經算子版。"
-predict = "範圍內和範圍外的誤差中位數各多少？如果把模態數從 16 加到 48（容得下更高頻），範圍外會變好嗎？"
-run = ["python lab/tools/fno_run.py", "python lab/tools/fno_run.py --modes 48"]
-win = "lab/runs/fno/compare.png 與兩次的誤差表；寫出你的拒絕門檻：什麼樣的輸入，這個 FNO 應該說「我不知道」"
+run = ["python lab/tools/card.py check 41", "python lab/tools/fno_run.py", "python lab/tools/fno_run.py --modes 48"]
+win = "6 個驗收測試全過，用一句話說明為什麼 test_resolution_invariance 會成立；再加 lab/runs/fno/compare.png 與兩次的誤差表，寫出你的拒絕門檻：什麼樣的輸入，這個 FNO 應該說「我不知道」"
 milestone = ""
 
 [[card]]

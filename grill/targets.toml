@@ -14,7 +14,7 @@ seeds = ["CR_CHECK 用的波速是哪個水深的？為什麼不是平均水深�
 id = "comcot/leapfrog-mass-momentum"
 files = ["lab/vendor/comcot-gfortran/mass.f90", "lab/vendor/comcot-gfortran/moment.f90"]
 lessons = ["10/03"]
-seeds = ["MASS 和 MOMENT 為什麼要錯開半個時間步？", "線性與非線性（MOMT_S 對 CONMOME_S）差在哪幾項？卡 13 看到的差異來自哪一項？"]
+seeds = ["MASS 和 MOMENT 為什麼要錯開半個時間步？", "線性與非線性（MOMT_S 對 CONMOME_S）差在哪幾項？卡 12 看到的差異來自哪一項？"]
 
 [[target]]
 id = "comcot/dispersion"

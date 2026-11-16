@@ -1,4 +1,4 @@
-"""卡 42：用你在卡 41 寫的 SpectralConv1d 組一個 FNO，學「初始水位 → T 秒後水位」。
+"""卡 41：用你寫的 SpectralConv1d 組一個 FNO，學「初始水位 → T 秒後水位」。
 
     python lab/tools/fno_run.py                # 預設：訓練 200 組、測範圍內與範圍外各 50 組
     python lab/tools/fno_run.py --modes 8      # 改保留的傅立葉模態數
