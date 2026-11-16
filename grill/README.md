@@ -1,13 +1,13 @@
-# grill-me：用拷問拆解速成專案
+# grill-me：用拷問拆解程式
 
-專案 A、B 是 Claude 寫的速成版。它們能跑，但「能跑」不代表你懂。grill-me 是一套固定的拷問流程：一次一題、不給答案、答錯就追問，直到你能解釋每一行為什麼這樣寫、改了會怎樣。
+COMCOT 是別人寫的，PINN 卡的程式是你寫的。它們都能跑，但「能跑」不代表你懂。grill-me 是一套固定的拷問流程：一次一題、不給答案、答錯就追問，直到你能解釋每一行為什麼這樣寫、改了會怎樣。
 
 ## 流程
-1. 選一個目標：`grill/targets.toml` 中的 `id`（例如 `A/hll-flux`）。
-2. 在 Claude 對話中說「grill me A/hll-flux」。grill-me skill 會讀目標的原始碼與對應課程，從 seeds 開始往下追問。
+1. 選一個目標：`grill/targets.toml` 中的 `id`（例如 `comcot/dispersion`）。
+2. 在 Claude 對話中說「grill me comcot/dispersion」。grill-me skill 會讀目標的原始碼與對應課程，從 seeds 開始往下追問。
 3. 追問的四個層次：**它做什麼 → 為什麼這樣 → 改了會怎樣 → 不看程式重寫一次**。
 4. 結束時 Claude 給分（0–3），寫入 `grill/log/日期-目標.md`，並更新 `grill/scores.json`。
-5. 分數 ≥ 2 的目標：解鎖對應的履歷敘述（`resume/`），也算進專案 C 的關卡條件（`projects/C-groundwater-bottomup/gate.toml`）。
+5. 分數 ≥ 2 的目標：解鎖對應的履歷敘述（`resume/`）。
 
 ## 分數
 | 分 | 意義 |

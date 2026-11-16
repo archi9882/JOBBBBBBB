@@ -18,3 +18,4 @@ dependencies:
       - httpx==0.28.1
       - prometheus-client
       - pyyaml            # 卡 24 的驗收測試讀 manifest
+      # 卡 34–43 需要 PyTorch；CPU 版另外裝：pip install torch --index-url https://download.pytorch.org/whl/cpu

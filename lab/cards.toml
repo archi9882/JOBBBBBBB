@@ -38,7 +38,7 @@ milestone = ""
 id = "04"
 kind = "預測"
 title = "時間步放大 10 倍"
-context = "情境 toy_dt30 把時間步從 3 秒改成 30 秒。專案 A 的 CFL 條件：Δt ≤ Cr·Δx / √(gh)。"
+context = "情境 toy_dt30 把時間步從 3 秒改成 30 秒。CFL 條件：Δt ≤ Cr·Δx / √(gh)。"
 predict = "模擬會發散、變不準，還是沒事？如果沒事，為什麼？"
 run = ["python lab/tools/run_case.py toy_dt30", "grep -i -A2 'time step' lab/runs/toy_dt30/run.log | head"]
 win = "用 CFL 自己算出 COMCOT 實際用的時間步，誤差在 1% 以內"
@@ -47,9 +47,9 @@ milestone = "第一次親手驗算模式內部的數值"
 [[card]]
 id = "05"
 kind = "拷問"
-title = "grill me A/cfl-and-boundaries"
-context = "你剛在卡 04 看到 COMCOT 自動調整時間步。現在拷問同樣的概念在專案 A 的求解器裡怎麼寫。"
-predict = "不需要預測；直接說「grill me A/cfl-and-boundaries」。"
+title = "grill me comcot/cfl-and-boundaries"
+context = "你剛在卡 04 看到 COMCOT 自動調整時間步。現在拷問 COMCOT 原始碼裡的 CR_CHECK 與開放邊界怎麼寫。"
+predict = "不需要預測；直接說「grill me comcot/cfl-and-boundaries」。"
 run = []
 win = "第一個拷問分數入帳"
 milestone = "grill 分數第一筆"
@@ -410,6 +410,148 @@ predict = "若訓練資料的規模範圍是 8.0–8.8，問 9.2 時代理模型
 run = []
 win = "代理模型與 COMCOT 的對照，以及你訂的拒絕門檻：什麼情況下這個代理模型不該被使用"
 milestone = ""
+
+# ── 波動 × PINN（卡 34–43）──────────────────────────────────────────
+# 主題：物理資訊神經網路（PINN）與傅立葉神經算子（FNO）在波動問題上能做什麼、不能做什麼。
+# 問題全部是無因次的一維線性淺水方程 η_t + h u_x = 0、u_t + g η_x = 0（g = h = 1，波速 1），
+# 真值用 lab/tools/wave1d_ref.py 的解析解，強基準用同檔的跳蛙法（和 COMCOT 同一類）。
+# 需要 PyTorch（CPU 版就夠）：pip install torch --index-url https://download.pytorch.org/whl/cpu
+# 背景整理：https://claude.ai/artifact/7qGgMBqj12YZEuBy8pA3ww
+
+[[card]]
+id = "34"
+kind = "文獻"
+title = "PINN 一頁紙：它到底在最小化什麼"
+context = "PINN 把解寫成神經網路 N(t, x)，用自動微分算出 ∂N/∂t、∂N/∂x，把方程的殘差、初始條件、邊界條件的平方加起來當損失。讀 Brecht、Cardoso-Bihlo、Bihlo（J. Comput. Phys. 2025，arXiv 2406.16236）第 3–4 節和表 1，再讀 McGreivy & Hakim（Nature Machine Intelligence 2024，arXiv 2407.07218）的摘要。"
+predict = "Brecht 等的表 1 裡，二維拋物盆地案例 PINN 訓練約多久？傳統 RBF-FD 求解器要多久？你猜誰快、快幾倍？McGreivy 說聲稱 ML 勝過數值方法的論文裡，有幾成是拿弱基準比的？"
+run = []
+win = "寫兩句話：PINN 的損失函數由哪幾項組成；以及你讀完後，覺得 PINN 在「正問題」和「反問題」哪個比較有機會贏傳統方法，為什麼"
+milestone = ""
+
+[[card]]
+id = "35"
+kind = "實作"
+title = "自動微分殘差：讓網路知道物理"
+context = "PINN 的核心只有一個函式：給網路和一批 (t, x) 點，回傳方程殘差。無因次線性淺水方程：η_t + h u_x = 0、u_t + g η_x = 0。真解代進去殘差是 0，這就是驗收的方式。"
+predict = "一個隨機初始化、還沒訓練的網路，殘差大概是 0.01、0.1、1 還是 10 的量級？"
+spec = "寫 lab/mine/pinn_swe.py（用 PyTorch）：class Net(torch.nn.Module)，Net(width=32, depth=3)，輸入 (N, 2) 的 [t, x]，輸出 (N, 2) 的 [η, u]，隱藏層用 tanh；residual(net, t, x, g=1.0, h=1.0) 回傳 (r_mass, r_mom)，t、x 是 (N, 1) 的 tensor（不一定有 requires_grad），h 可以是 float 或 tensor（卡 40 要學它，梯度要傳得回去）。"
+check = "lab/checks/test_c35.py"
+hints = [
+  "對 t、x 的導數要 autograd 才算得出來：先把它們 detach() 再 requires_grad_(True)，丟進網路。",
+  "torch.autograd.grad(η, t, grad_outputs=torch.ones_like(η), create_graph=True)[0] 就是 ∂η/∂t；create_graph=True 讓殘差本身還能再對網路參數微分（訓練要用）。",
+  "out = net(torch.cat([t, x], 1))；η, u = out[:, :1], out[:, 1:]；r_mass = η_t + h·u_x；r_mom = u_t + g·η_x。h 直接相乘就好，是 tensor 時梯度自然會傳回去。",
+]
+run = ["python lab/tools/card.py check"]
+win = "6 個驗收測試全過；再用一個隨機網路印出殘差的大小，對照你的預測"
+milestone = ""
+
+[[card]]
+id = "36"
+kind = "實作"
+title = "訓練你的第一個 PINN"
+context = "初始條件：η0 = exp(-(x/w)²)、u0 = 0，w = 0.3，x ∈ [-2, 2]，t ∈ [0, T]。解析解是兩個各一半高的波往左右走，t=1 時在 x = ±1。損失 = 殘差的平方平均 + λ·（初始條件誤差的平方平均）。"
+predict = "用 Adam 訓練 3000 步，t=1 的相對 L2 誤差大概多少：0.5%、2%、10% 還是 30%？訓練要幾秒？"
+spec = "在 lab/mine/pinn_swe.py 加 train(steps=3000, width=32, depth=3, w=0.3, T=1.0, n_col=2000, n_ic=200, lr=1e-3, seed=0, causal_eps=None) 回傳 (net, hist)，hist 是每一步損失（float）的 list。每步在 [0,T]×[-2,2] 隨機取 n_col 個配置點算殘差；初始條件在 t=0 取 n_ic 個點。causal_eps 先不用實作（卡 38 才用），但要接受這個參數。"
+check = "lab/checks/test_c36.py"
+hints = [
+  "torch.manual_seed(seed) 放最前面，結果才能重現。初始條件點固定用 torch.linspace(-2, 2, n_ic)。",
+  "初始條件的兩項都要罰：(η(0,x) - η0)² 和 u(0,x)²。殘差項和初始條件項量級差很多時，給初始條件一個權重（例如 10）。",
+  "迴圈：t = torch.rand(n_col,1)*T；x = torch.rand(n_col,1)*4-2；rm, rp = residual(net, t, x)；loss = (rm²+rp²).mean() + 10·IC 損失；opt.zero_grad()；loss.backward()；opt.step()；hist.append(loss.item())。",
+]
+run = ["python lab/tools/card.py check", "python lab/tools/pinn_run.py"]
+win = "lab/runs/pinn/w0.3_T1.0.png：你的 PINN 和解析解疊在一起，以及誤差隨時間的變化"
+milestone = "第一個你自己訓練的 PINN"
+
+[[card]]
+id = "37"
+kind = "預測"
+title = "窄波與長時間：頻譜偏差"
+context = "神經網路先學會低頻、很晚才學會高頻（頻譜偏差，spectral bias；Wang, Yu & Perdikaris, J. Comput. Phys. 2022）。窄的波含有更多高頻。同樣 3000 步，把 w 從 0.3 縮到 0.05，時間從 1 拉到 1.5。"
+predict = "w=0.05、T=1.5 時，t=1.5 的誤差是 w=0.3、T=1 的幾倍？誤差是一開始就大，還是隨時間越來越大？"
+run = ["python lab/tools/pinn_run.py --w 0.3 --T 1", "python lab/tools/pinn_run.py --w 0.05 --T 1.5"]
+win = "兩張 lab/runs/pinn/*.png 並排：說出窄波失準的樣子（振幅被抹平？位置跑掉？），並對照跳蛙法要多少格才能解析 w=0.05（每個波寬至少幾格？）"
+milestone = ""
+
+[[card]]
+id = "38"
+kind = "實作"
+title = "因果權重：先學好前面再學後面"
+context = "一般 PINN 同時最小化所有時間的殘差，模型可能先去配 t 很大的地方，違反「後面由前面決定」的因果。Wang, Sankaran & Perdikaris（CMAME 421, 2024）把時間切成 M 段，第 i 段的權重 w_i = exp(-ε·Σ_{k<i} L_k)，前面沒學好，後面的權重就很小。"
+predict = "對卡 37 那個難的情況（w=0.05、T=1.5），加 ε=1 的因果權重，t=1.5 的誤差會改善多少：沒差、少一成、少一半，還是降一個數量級？"
+spec = "在 lab/mine/pinn_swe.py 加 causal_weights(chunk_losses, eps) 回傳權重 tensor（第一個是 1，不帶梯度）；並讓 train(causal_eps=ε) 在 ε 不是 None 時，把配置點依時間分成 16 段，殘差損失改成 mean(w_i · L_i)。"
+check = "lab/checks/test_c38.py"
+hints = [
+  "權重是用來決定訓練順序的，不該被最佳化：先 detach() 損失再算權重。",
+  "前面各段的總和 = 累積和往右移一格：torch.cat([torch.zeros(1), torch.cumsum(L, 0)[:-1]])。",
+  "分段：idx = (t / T * M).long().clamp(max=M-1)；各段平均可用 torch.zeros(M).index_add(0, idx, r²) 除以 torch.bincount(idx, minlength=M)。",
+]
+run = ["python lab/tools/card.py check", "python lab/tools/pinn_run.py --w 0.05 --T 1.5 --causal-eps 1"]
+win = "有無因果權重的誤差對照表；不論結果好壞，寫一句「這個改良在我的問題上值不值得」"
+milestone = ""
+
+[[card]]
+id = "39"
+kind = "對決"
+title = "公平賽跑：相同精度下誰快"
+context = "McGreivy & Hakim（2024）指出，聲稱比數值方法快的流體 ML 論文，大多拿太弱的基準比。公平的比法：先固定精度，再找傳統方法達到這個精度的最便宜設定。工具會訓練你的 PINN，再找誤差不超過它的最粗跳蛙法網格。"
+predict = "先請一個 AI 回答「PINN 解這個一維波動問題，比有限差分快幾倍？」並記下它的說法。你自己猜：同精度下，跳蛙法比 PINN（含訓練）快幾倍？只比推論的話誰快？"
+run = ["python lab/tools/pinn_vs_fd.py"]
+win = "在 docs/ai-falsification-log.md 加一筆作者為「我」的紀錄：AI 的說法、你的實測數字、它錯在哪（弱基準、沒算訓練、沒算重新訓練）"
+milestone = ""
+
+[[card]]
+id = "40"
+kind = "實作"
+title = "反問題：從兩個測站反求水深"
+context = "這才是 PINN 真正有優勢的地方：把未知的水深 h 當成和網路一起訓練的參數，用測站資料約束。真實 h=0.64（波速 0.8），測站在 x=0.5、1.0，各有 t∈[0,1] 的 100 筆水位，初始條件已知。傳統做法要反覆跑正演模式再調參數。"
+predict = "初猜 h=1.0、資料沒有雜訊，反求的 h 誤差會在 1%、5% 還是 20% 內？加 2 cm（無因次 0.02）的雜訊、初猜 0.3 時呢？"
+spec = "寫 lab/mine/pinn_inverse.py：fit_depth(t_obs, x_obs, eta_obs, g=1.0, h_init=1.0, w=0.3, T=1.0, steps=3000, seed=0) 回傳反求的 h（float）。t_obs、x_obs、eta_obs 是一維 numpy 陣列。重用卡 35 的 Net 與 residual。"
+check = "lab/checks/test_c40.py"
+hints = [
+  "水深一定是正的：學 log h（torch.nn.Parameter(torch.tensor(math.log(h_init)))），用的時候取 exp。",
+  "把 log h 和網路參數放進同一個 Adam：torch.optim.Adam(list(net.parameters()) + [logh], 1e-3)。",
+  "損失 = 殘差（h = exp(logh)）+ 10·初始條件 + 10·（網路在 (t_obs, x_obs) 的 η 減 eta_obs 的平方平均）。",
+]
+run = ["python lab/tools/card.py check"]
+win = "兩個情況反求的 h 與誤差；再想一個傳統方法做同一件事的流程（用 COMCOT 怎麼反求？要跑幾次？）"
+milestone = "PINN 的真正用武之地"
+
+[[card]]
+id = "41"
+kind = "實作"
+title = "傅立葉神經算子的核心層"
+context = "PINN 每換一個初始條件就要重訓。神經算子（Li 等，ICLR 2021）學的是「輸入函數 → 輸出函數」的映射，訓練一次可以用在很多情境。FNO 的核心層：對輸入做 FFT，只保留前 m 個模態，乘上學來的複數權重，再反 FFT。"
+predict = "只保留前 16 個傅立葉模態的層，對一個寬度 w=0.06 的窄高斯，會損失多少細節？（提示：區間長 4，第 16 個模態的波長是多少？）"
+spec = "寫 lab/mine/fno.py：class SpectralConv1d(torch.nn.Module)，SpectralConv1d(in_ch, out_ch, modes)，屬性 self.weight 是形狀 (in_ch, out_ch, modes) 的複數 nn.Parameter；forward(x) 輸入 (B, in_ch, N) 實數，輸出 (B, out_ch, N) 實數。"
+check = "lab/checks/test_c41.py"
+hints = [
+  "torch.fft.rfft(x) 沿最後一維做 FFT，得到 N//2+1 個複數模態；torch.fft.irfft(Y, n=N) 轉回來（n 一定要給，奇數 N 才不會出錯）。",
+  "通道混合：Y[:, :, :m] = torch.einsum(\"bim,iom->bom\", X[:, :, :m], self.weight)；其餘模態補 0。",
+  "初始化權重給小一點：(1/(in_ch·out_ch)) · torch.randn(in_ch, out_ch, modes, dtype=torch.cfloat)。",
+]
+run = ["python lab/tools/card.py check"]
+win = "6 個驗收測試全過；用一句話說明為什麼 test_resolution_invariance 會成立"
+milestone = ""
+
+[[card]]
+id = "42"
+kind = "預測"
+title = "FNO 代理模型：訓練範圍內與範圍外"
+context = "工具用你的 SpectralConv1d 組成 4 層 FNO，學「初始水位 → t=1 的水位」。訓練資料是 200 組高斯，寬度 w∈[0.2, 0.4]。測兩組：範圍內（同分布）和範圍外（w∈[0.06, 0.12]，更窄）。這就是卡 30–31 代理模型外插問題的神經算子版。"
+predict = "範圍內和範圍外的誤差中位數各多少？如果把模態數從 16 加到 48（容得下更高頻），範圍外會變好嗎？"
+run = ["python lab/tools/fno_run.py", "python lab/tools/fno_run.py --modes 48"]
+win = "lab/runs/fno/compare.png 與兩次的誤差表；寫出你的拒絕門檻：什麼樣的輸入，這個 FNO 應該說「我不知道」"
+milestone = ""
+
+[[card]]
+id = "43"
+kind = "對決"
+title = "叫 AI 寫 PINN，用你的驗收否證它"
+context = "開一個全新的 AI 對話，只給它卡 35、36 的 spec，請它寫 pinn_swe.py，並請它說明精度和速度。放到 lab/mine_ai/pinn_swe.py，用你的驗收和你的公平賽跑工具檢查它。"
+predict = "AI 的版本能過幾個測試？它對精度或速度的說法，哪一句最可能是錯的？"
+run = ["MINE_DIR=lab/mine_ai python lab/tools/card.py check 35", "MINE_DIR=lab/mine_ai python lab/tools/card.py check 36", "MINE_DIR=lab/mine_ai python lab/tools/pinn_vs_fd.py"]
+win = "docs/ai-falsification-log.md 再加一筆作者為「我」的紀錄；把卡 34–43 的發現濃縮成 3 句，放進面試的「否證 AI」故事"
+milestone = "解鎖履歷：波動 PINN 的實作與否證"
 
 [[card]]
 id = "32"

@@ -8,7 +8,7 @@
         ▼
 每晚一張卡（30 分鐘）：先猜 → 再跑 → 看圖 → 一句收穫 → 推上 GitHub
         │                         ▲
-        └──── 33 張卡依序做 ───────┘
+        └──── 43 張卡依序做 ───────┘
         │
         ▼
 里程碑解鎖 → 履歷敘述自動產生
@@ -35,7 +35,7 @@ bash lab/tools/setup_comcot.sh          # 最後要看到「OK：…/comcot」
 
 # 4. 確認一切正常
 pytest                                   # 全部通過
-python lab/tools/card.py                 # 顯示「0/33 張」與卡 01
+python lab/tools/card.py                 # 顯示「0/43 張」與卡 01
 ```
 
 **完成條件**：上面四步都沒有錯誤。卡住就把錯誤訊息貼給 Claude。
@@ -79,7 +79,7 @@ git add -A && git commit -m "card <卡號>: <題目>" && git push
 
 ---
 
-## 步驟 3　33 張卡的路線
+## 步驟 3　43 張卡的路線
 
 | 階段 | 卡 | 你會得到 | 里程碑 |
 |---|---|---|---|
@@ -88,7 +88,8 @@ git add -A && git commit -m "card <卡號>: <題目>" && git push
 | 服務 | 17–21 | 自己寫的模擬 API、Docker 映像、睡前批次跑 5 個情境 | 第一支模擬服務 |
 | 自架平台 | 22–28 | 容量估算、k3d 部署、監控指標、故障演練、儲存架構決策紀錄 | 服務跑在 Kubernetes 上 |
 | 混合方法 | 29–31 | 方法選擇、代理模型、外插失效 | 物理模擬加代理模型 |
-| 作品集 | 32–33 | 否證案例集、陌生人能跑的 README、10 分鐘簡報 | 作品集完成 |
+| 波動 × PINN | 34–43 | 自己寫 PINN 與 FNO 層；頻譜偏差、因果權重、和跳蛙法公平賽跑、從測站反求水深、FNO 外插失效、否證 AI 寫的 PINN | PINN 的真正用武之地 |
+| 作品集（最後做） | 32–33 | 否證案例集、陌生人能跑的 README、10 分鐘簡報 | 作品集完成 |
 
 完整卡片在 [lab/cards.toml](lab/cards.toml)；實驗室說明見 [lab/README.md](lab/README.md)。
 
@@ -97,7 +98,7 @@ git add -A && git commit -m "card <卡號>: <題目>" && git push
 ## 步驟 4　成果自動變成履歷
 
 ```bash
-python tools/resume_gen.py --refresh
+python tools/resume_gen.py
 ```
 
 產出在 `resume/generated/`：
@@ -112,12 +113,9 @@ python tools/resume_gen.py --refresh
 
 | 資料夾 | 內容 | 什麼時候用 |
 |---|---|---|
-| [reserve-numerics/](reserve-numerics/README.md) | 數值分析儲備課程 13 堂：守恆與驗證、淺水方程有限體積、計算幾何 | 想自己寫求解器，或專案 C 需要時 |
-| [projects/A-flood-service](projects/A-flood-service) | 一維潰壩求解器加非同步 API（Claude 寫） | 拷問卡用來拆解求解器原理 |
-| [projects/B-rain-etl-spatial](projects/B-rain-etl-spatial) | 雨量 ETL 與空間處理（Claude 寫） | 目前不用 |
-| [projects/C-groundwater-bottomup](projects/C-groundwater-bottomup) | 地下水污染傳輸，由你從零寫，6 層關卡 | 實驗室做完之後；用 `python tools/gate.py` 看解鎖狀態 |
+| [reserve-numerics/](reserve-numerics/README.md) | 數值分析儲備課程 13 堂：守恆與驗證、淺水方程有限體積、計算幾何 | 想自己寫求解器，或 PINN 卡需要對照基準時 |
 | [grill/](grill/README.md) | grill-me 拷問目標與分數 | 拷問卡 |
-| [docs/archive/](docs/archive/phases/README.md) | 已封存的課程與舊待辦（附對照表） | 只供查閱 |
+| [docs/archive/](docs/archive/phases/README.md) | 已封存的課程、舊待辦，以及 2026-11-16 封存的專案 A、B、C | 只供查閱 |
 
 ---
 
@@ -125,7 +123,6 @@ python tools/resume_gen.py --refresh
 
 - `lab/mine/` 是你自己寫的程式，Claude 不寫、不改、不貼解答，只跑驗收、指出哪個測試失敗。
 - `lab/tools/`、`lab/checks/`、`lab/cases.py` 是 Claude 寫的工具和驗收測試。
-- 專案 C 由你從零寫，Claude 只拷問與審查。
 - `lab/progress.json`、`lab/log.md`、`grill/scores.json`、`resume/generated/` 都由工具寫入，不手動改。
 - 給 Claude Code 的完整規則在 [CLAUDE.md](CLAUDE.md)。
 

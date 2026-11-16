@@ -15,23 +15,19 @@
 ## 誰寫程式
 - `lab/tools/`、`lab/cases.py`、`lab/checks/`：Claude 可以寫（工具與驗收測試）。卡片的預測、判讀與收穫由使用者做。
 - **`lab/mine/`：使用者自己寫的程式（實作卡）。Claude 不寫、不改、不貼解答**，只讀、跑驗收、指出哪個測試失敗；規則細節見 card 技能。
-- **專案 C（`projects/C-groundwater-bottomup/`）**：Claude 不寫程式碼，只拷問、審查、查文件。
-- `reserve-numerics/`（數值分析儲備課程）依 `docs/depth-tiers.md` 分級（A 親手做、B Agent 做使用者驗收、C 只讀懂）。儲備課程與專案 C 都是副線，卡片引導到時才做。
-- 專案 A、B：可以修改，改動寫進該專案 `falsification.md` 或 commit 訊息。
+- `reserve-numerics/`（數值分析儲備課程）依 `docs/depth-tiers.md` 分級（A 親手做、B Agent 做使用者驗收、C 只讀懂）。儲備課程是副線，卡片引導到時才做。
 
 ## 不可以做的事
 - 不手動修改 `grill/scores.json`（只由 grill-me 依實際表現寫入）與 `resume/generated/`（由 `tools/resume_gen.py` 產生）。
 - 不手動修改 `lab/progress.json`、`lab/log.md`（由 `lab/tools/card.py` 寫入）。
 - `docs/ai-falsification-log.md` 的「作者」欄：使用者抓到的寫「我」，Claude 抓到或犯的寫「Claude」。
-- 不在專案 C 的未解鎖層放 `.py`。
 
 ## 常用指令
 ```bash
 python lab/tools/card.py                # 下一張卡與進度
 python lab/tools/run_case.py <情境>     # 跑 COMCOT 情境
 pytest                                  # 全部測試
-python tools/resume_gen.py --refresh    # 履歷生產表
-python tools/gate.py                    # 專案 C 關卡
+python tools/resume_gen.py              # 履歷生產表
 ```
 - `pytest.ini` 已有 `addopts = -q`；子程序解析「N passed」時用 `-o addopts=--import-mode=importlib -q`。
 
@@ -40,4 +36,4 @@ python tools/gate.py                    # 專案 C 關卡
 - 文獻與外部資料來源要實際查證，查不到標「未查證」。
 
 ## 舊文件
-`docs/archive/` 是 2026-11-15 以前的 TODO 與指令速查，只供查閱。
+`docs/archive/` 是 2026-11-15 以前的 TODO 與指令速查，以及 2026-11-16 封存的專案 A、B、C 與 `gate.py`，只供查閱。

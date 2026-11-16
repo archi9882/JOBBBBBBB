@@ -1,14 +1,14 @@
 ---
 name: "grill-me"
-description: "Relentless one-question-at-a-time Socratic grilling on a code component (e.g. \"grill me A/hll-flux\") until the user can explain, predict changes, and rebuild it; scores 0–3 and logs results."
+description: "Relentless one-question-at-a-time Socratic grilling on a code component (e.g. \"grill me comcot/dispersion\") until the user can explain, predict changes, and rebuild it; scores 0–3 and logs results."
 ---
 
 # grill-me
 
-用拷問把「能跑的程式」變成「我懂的程式」。使用者說「grill me <目標>」、「拷問我」、「拆解 A/xxx」時使用。全程繁體中文，技術名詞附英文。
+用拷問把「能跑的程式」變成「我懂的程式」。使用者說「grill me <目標>」、「拷問我」、「拆解 comcot/xxx」時使用。全程繁體中文，技術名詞附英文。
 
 ## 0. 找目標
-- 若工作區有 JOBBBBBBB repo（含 `grill/targets.toml`），讀該檔找到目標的 `files`、`lessons`、`seeds`，並讀這些原始碼與對應專案 README 的「拆解地圖」。
+- 若工作區有 JOBBBBBBB repo（含 `grill/targets.toml`），讀該檔找到目標的 `files`、`lessons`、`seeds`，並讀這些原始碼（comcot/ 目標的檔案要先跑過卡 01 才會存在）。
 - 沒有 repo 時，請使用者貼上要拷問的程式或說明，自己定 2–3 個起始問題。
 - 目標不存在時，列出可選目標，請使用者挑一個。
 - 開場只說一句：今天拷問哪個目標、大約幾題、分數怎麼算。然後直接問第一題。
@@ -52,13 +52,13 @@ description: "Relentless one-question-at-a-time Socratic grilling on a code comp
 2. 更新 `grill/scores.json`：`{"<目標>": {"score": N, "date": "YYYY-MM-DD", "log": "grill/log/...md"}}`。同一目標以最新一場為準，但分數下降也要照實寫。
 3. 使用者先發現的程式錯誤，加到 `docs/ai-falsification-log.md`（作者：我）。
 4. 若使用者要求，commit 並 push；commit 訊息寫「grill: <目標> N 分」。
-5. 最後回報三行：分數、最大的缺口與要補的 lesson、下一個建議拷問的目標。若分數 ≥ 2，提醒可跑 `python tools/resume_gen.py` 與 `python tools/gate.py` 看解鎖了什麼。
+5. 最後回報三行：分數、最大的缺口與要補的 lesson、下一個建議拷問的目標。若分數 ≥ 2，提醒可跑 `python tools/resume_gen.py` 看解鎖了什麼。
 
 ## 5. 不做的事
-- 不替使用者寫專案 C（bottom-up 專案）的程式碼；只拷問與審查。
+- 不替使用者寫 `lab/mine/` 的程式碼；只拷問與審查。
 - 不自行修改 scores.json 以外的分數，不因使用者要求而灌分。
 ## 6. 在 Claude Code（本機 repo）中的補充
 - 可以直接執行指令驗證使用者的預測（例如改一個參數跑測試），但改動只能放在暫存分支或用完即還原，不留在 main。
-- 結束寫入紀錄後，執行 `python tools/gate.py` 與 `python tools/resume_gen.py --refresh`，回報新解鎖的層或履歷敘述。
+- 結束寫入紀錄後，執行 `python tools/resume_gen.py`，回報新解鎖的履歷敘述。
 - 若本場是 lab/cards.toml 的拷問卡，結束後依 card 技能收尾（`python lab/tools/card.py done <id> "<收穫>"`）。
 - 參考 `docs/depth-tiers.md`：目標對應的 lesson 若是 A 級，拷問要追到「重寫」層次才給 2 分以上。
