@@ -25,7 +25,7 @@ git pull
 **常見狀況**
 
 - **`git push` 被拒絕（rejected）**：雲端有你本機沒有的新 commit。先執行 `git pull`，再 `git push`。有衝突就把訊息貼給我，不要自己硬解。
-- **要求輸入帳號密碼**：你的 `startup.md` 寫 remote 已改成 SSH（`git@github.com:archi9882/JOBBBBBBB.git`）。如果還是跳出密碼，用 `git remote -v` 確認網址開頭是 `git@github.com`，不是 `https://`。
+- **要求輸入帳號密碼**：README 步驟 1 用 SSH clone，remote 是 SSH（`git@github.com:archi9882/JOBBBBBBB.git`）。如果還是跳出密碼，用 `git remote -v` 確認網址開頭是 `git@github.com`，不是 `https://`。
 - **`git add -A` 會加到不該加的東西嗎**：`lab/runs/`、`lab/vendor/`、`lab/data/`（COMCOT 輸出和下載資料）都已經在 `.gitignore`，不會被推上去，不用擔心檔案太大。
 - **推送後怎麼確認**：到 `https://github.com/archi9882/JOBBBBBBB` 看最新一筆 commit 的訊息和時間。或在終端機執行 `git status`，會顯示 `Your branch is up to date with 'origin/main'`。
 
