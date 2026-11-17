@@ -344,17 +344,6 @@ win = "用你自己的批次結果訓練一次，貼上測試誤差與一個預�
 milestone = "解鎖履歷：物理模擬加代理模型的混合方法"
 
 [[card]]
-id = "34"
-kind = "文獻"
-title = "PINN 一頁紙：它到底在最小化什麼"
-track = "PINN"
-context = "PINN 把解寫成神經網路 N(t, x)，用自動微分算出 ∂N/∂t、∂N/∂x，把方程的殘差、初始條件、邊界條件的平方加起來當損失。讀 Brecht、Cardoso-Bihlo、Bihlo（J. Comput. Phys. 2025，arXiv 2406.16236）第 3–4 節和表 1，再讀 McGreivy & Hakim（Nature Machine Intelligence 2024，arXiv 2407.07218）的摘要。"
-predict = "Brecht 等的表 1 裡，二維拋物盆地案例 PINN 訓練約多久？傳統 RBF-FD 求解器要多久？你猜誰快、快幾倍？McGreivy 說聲稱 ML 勝過數值方法的論文裡，有幾成是拿弱基準比的？"
-run = []
-win = "寫兩句話：PINN 的損失函數由哪幾項組成；以及你讀完後，覺得 PINN 在「正問題」和「反問題」哪個比較有機會贏傳統方法，為什麼"
-milestone = ""
-
-[[card]]
 id = "35"
 kind = "實作"
 title = "自動微分殘差：讓網路知道物理"
@@ -373,12 +362,23 @@ win = "6 個驗收測試全過；再用一個隨機網路印出殘差的大小�
 milestone = ""
 
 [[card]]
+id = "34"
+kind = "文獻"
+title = "PINN 一頁紙：它到底在最小化什麼"
+track = "PINN"
+context = "PINN 把解寫成神經網路 N(t, x)，用自動微分算出 ∂N/∂t、∂N/∂x，把方程的殘差、初始條件、邊界條件的平方加起來當損失。讀 Brecht、Cardoso-Bihlo、Bihlo（J. Comput. Phys. 2025，arXiv 2406.16236）第 3–4 節和表 1，再讀 McGreivy & Hakim（Nature Machine Intelligence 2024，arXiv 2407.07218）的摘要。"
+predict = "Brecht 等的表 1 裡，二維拋物盆地案例 PINN 訓練約多久？傳統 RBF-FD 求解器要多久？你猜誰快、快幾倍？McGreivy 說聲稱 ML 勝過數值方法的論文裡，有幾成是拿弱基準比的？"
+run = []
+win = "寫兩句話：PINN 的損失函數由哪幾項組成；以及你讀完後，覺得 PINN 在「正問題」和「反問題」哪個比較有機會贏傳統方法，為什麼"
+milestone = ""
+
+[[card]]
 id = "36"
 kind = "實作"
 title = "訓練你的第一個 PINN"
 track = "PINN"
-context = "初始條件：η0 = exp(-(x/w)²)、u0 = 0，w = 0.3，x ∈ [-2, 2]，t ∈ [0, T]。解析解是兩個各一半高的波往左右走，t=1 時在 x = ±1。損失 = 殘差的平方平均 + λ·（初始條件誤差的平方平均）。訓練完再把波變窄、時間拉長跑一次：神經網路先學會低頻、很晚才學會高頻（頻譜偏差，spectral bias；Wang, Yu & Perdikaris, J. Comput. Phys. 2022），而窄的波含有更多高頻。（併入原卡 37）"
-predict = "用 Adam 訓練 3000 步，t=1 的相對 L2 誤差大概多少：0.5%、2%、10% 還是 30%？訓練要幾秒？再猜：同樣 3000 步，把 w 從 0.3 縮到 0.05、時間從 1 拉到 1.5，t=1.5 的誤差是前者的幾倍？誤差是一開始就大，還是隨時間越來越大？"
+context = "初始條件：η0 = exp(-(x/w)²)、u0 = 0，w = 0.3，x ∈ [-2, 2]，t ∈ [0, T]。解析解是兩個各一半高的波往左右走，t=1 時在 x = ±1。損失 = 殘差的平方平均 + λ·（初始條件誤差的平方平均）。這張只訓練「容易的」情況；窄波的失準留到卡 38 當動機。"
+predict = "用 Adam 訓練 3000 步，t=1 的相對 L2 誤差大概多少：0.5%、2%、10% 還是 30%？訓練要幾秒？"
 spec = "在 lab/mine/pinn_swe.py 加 train(steps=3000, width=32, depth=3, w=0.3, T=1.0, n_col=2000, n_ic=200, lr=1e-3, seed=0, causal_eps=None) 回傳 (net, hist)，hist 是每一步損失（float）的 list。每步在 [0,T]×[-2,2] 隨機取 n_col 個配置點算殘差；初始條件在 t=0 取 n_ic 個點。causal_eps 先不用實作（卡 38 才用），但要接受這個參數。"
 check = "lab/checks/test_c36.py"
 hints = [
@@ -386,8 +386,8 @@ hints = [
   "初始條件的兩項都要罰：(η(0,x) - η0)² 和 u(0,x)²。殘差項和初始條件項量級差很多時，給初始條件一個權重（例如 10）。",
   "迴圈：t = torch.rand(n_col,1)*T；x = torch.rand(n_col,1)*4-2；rm, rp = residual(net, t, x)；loss = (rm²+rp²).mean() + 10·IC 損失；opt.zero_grad()；loss.backward()；opt.step()；hist.append(loss.item())。",
 ]
-run = ["python lab/tools/card.py check 36", "python lab/tools/pinn_run.py", "python lab/tools/pinn_run.py --w 0.05 --T 1.5"]
-win = "lab/runs/pinn/ 兩張圖並排：你的 PINN 和解析解疊在一起、誤差隨時間的變化；說出窄波失準的樣子（振幅被抹平？位置跑掉？），並對照跳蛙法要多少格才能解析 w=0.05（每個波寬至少幾格？）"
+run = ["python lab/tools/card.py check 36", "python lab/tools/pinn_run.py"]
+win = "lab/runs/pinn/ 兩張圖並排：你的 PINN 和解析解疊在一起、誤差隨時間的變化；說出誤差是一開始就大，還是隨時間越來越大"
 milestone = "第一個你自己訓練的 PINN"
 
 [[card]]
@@ -395,8 +395,8 @@ id = "38"
 kind = "實作"
 title = "因果權重：先學好前面再學後面"
 track = "PINN"
-context = "一般 PINN 同時最小化所有時間的殘差，模型可能先去配 t 很大的地方，違反「後面由前面決定」的因果。Wang, Sankaran & Perdikaris（CMAME 421, 2024）把時間切成 M 段，第 i 段的權重 w_i = exp(-ε·Σ_{k<i} L_k)，前面沒學好，後面的權重就很小。"
-predict = "對卡 36 那個難的情況（w=0.05、T=1.5），加 ε=1 的因果權重，t=1.5 的誤差會改善多少：沒差、少一成、少一半，還是降一個數量級？"
+context = "先看失敗：把波變窄（w=0.05）、時間拉長（T=1.5），同樣 3000 步，PINN 會明顯失準——神經網路先學會低頻、很晚才學會高頻（頻譜偏差，spectral bias；Wang, Yu & Perdikaris, J. Comput. Phys. 2022），而窄的波含有更多高頻。再看修法：一般 PINN 同時最小化所有時間的殘差，模型可能先去配 t 很大的地方，違反「後面由前面決定」的因果。Wang, Sankaran & Perdikaris（CMAME 421, 2024）把時間切成 M 段，第 i 段的權重 w_i = exp(-ε·Σ_{k<i} L_k)，前面沒學好，後面的權重就很小。"
+predict = "先猜不加因果權重時：w 從 0.3 縮到 0.05、時間從 1 拉到 1.5，t=1.5 的誤差是卡 36 的幾倍？誤差一開始就大，還是隨時間越來越大？再猜：加 ε=1 的因果權重後，t=1.5 的誤差會改善多少：沒差、少一成、少一半，還是降一個數量級？"
 spec = "在 lab/mine/pinn_swe.py 加 causal_weights(chunk_losses, eps) 回傳權重 tensor（第一個是 1，不帶梯度）；並讓 train(causal_eps=ε) 在 ε 不是 None 時，把配置點依時間分成 16 段，殘差損失改成 mean(w_i · L_i)。"
 check = "lab/checks/test_c38.py"
 hints = [
@@ -404,8 +404,8 @@ hints = [
   "前面各段的總和 = 累積和往右移一格：torch.cat([torch.zeros(1), torch.cumsum(L, 0)[:-1]])。",
   "分段：idx = (t / T * M).long().clamp(max=M-1)；各段平均可用 torch.zeros(M).index_add(0, idx, r²) 除以 torch.bincount(idx, minlength=M)。",
 ]
-run = ["python lab/tools/card.py check", "python lab/tools/pinn_run.py --w 0.05 --T 1.5 --causal-eps 1"]
-win = "有無因果權重的誤差對照表；不論結果好壞，寫一句「這個改良在我的問題上值不值得」"
+run = ["python lab/tools/card.py check", "python lab/tools/pinn_run.py --w 0.05 --T 1.5", "python lab/tools/pinn_run.py --w 0.05 --T 1.5 --causal-eps 1"]
+win = "有無因果權重的誤差對照表，並說出窄波失準的樣子（振幅被抹平？位置跑掉？）；不論結果好壞，寫一句「這個改良在我的問題上值不值得」"
 milestone = ""
 
 [[card]]
@@ -414,7 +414,7 @@ kind = "對決"
 title = "公平賽跑：相同精度下誰快"
 track = "PINN"
 context = "McGreivy & Hakim（2024）指出，聲稱比數值方法快的流體 ML 論文，大多拿太弱的基準比。公平的比法：先固定精度，再找傳統方法達到這個精度的最便宜設定。工具會訓練你的 PINN，再找誤差不超過它的最粗跳蛙法網格。"
-predict = "先請一個 AI 回答「PINN 解這個一維波動問題，比有限差分快幾倍？」並記下它的說法。你自己猜：同精度下，跳蛙法比 PINN（含訓練）快幾倍？只比推論的話誰快？"
+predict = "先請一個 AI 回答「PINN 解這個一維波動問題，比有限差分快幾倍？」並記下它的說法。你自己猜：同精度下，跳蛙法比 PINN（含訓練）快幾倍？只比推論的話誰快？ 再猜：跳蛙法要多少格才能解析 w=0.05 的窄波（每個波寬至少幾格）？"
 run = ["python lab/tools/pinn_vs_fd.py"]
 win = "在 docs/ai-falsification-log.md 加一筆作者為「我」的紀錄：AI 的說法、你的實測數字、它錯在哪（弱基準、沒算訓練、沒算重新訓練）"
 milestone = ""
