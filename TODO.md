@@ -41,6 +41,10 @@
    git add -A && git commit -m "card 35: 自動微分殘差" && git push
    ```
 
+**明天另加（pygmt，預估共 1.5–2 小時，可分兩晚）**
+1. 安裝（約 10 分鐘）：`conda install -n jobprep -c conda-forge pygmt`，並把 `pygmt` 加進 `environment.yml`；裝完 `pytest` 要仍是 14 passed。
+2. 改寫繪圖（1–2 小時）：`plot.py` 的 `geo_style()` 換成 pygmt；`wave_gif.py` 要先逐幀輸出 PNG 再用 Pillow 合併。改完同步更新 CLAUDE.md 的繪圖規則（並先刪一條才能加）。
+
 **今天不用做**
 - **卡 34（文獻）**：它的預測欄問 Brecht 表 1 的計時和 McGreivy 的弱基準比例，而這兩個答案我已經寫進水文學那份報告裡了。要讀隨時可以讀，但不要再當成預測卡。
 - 卡 36 以後：做完一張就停。
