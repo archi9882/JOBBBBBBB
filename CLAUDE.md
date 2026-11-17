@@ -35,5 +35,5 @@ python tools/resume_gen.py              # 履歷生產表
 - 數值、API 用法、套件預設值都以實跑為準；說法被推翻就記到對應的 `falsification.md`。
 - 文獻與外部資料來源要實際查證，查不到標「未查證」。
 
-## 舊文件
-`docs/archive/` 是 2026-11-15 以前的 TODO 與指令速查，以及 2026-11-16 封存的專案 A、B、C 與 `gate.py`，只供查閱。
+## 繪圖規則
+- 地圖類的圖一律呼叫 `lab/tools/plot.py` 的 `geo_style()`（GMT 風格：°E/°N 刻度、黑白交替邊框、比例尺），不另寫樣式。
